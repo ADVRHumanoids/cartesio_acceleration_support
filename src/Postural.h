@@ -40,8 +40,11 @@ protected:
 
 private:
 
+    virtual const Eigen::MatrixXd& getOpenSotWeight() const override;
+
     Eigen::VectorXd _qref;
     PosturalTask::Ptr _ci_post;
+    mutable Eigen::MatrixXd _W;
 
 };
 

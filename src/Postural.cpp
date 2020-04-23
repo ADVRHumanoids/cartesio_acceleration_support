@@ -55,6 +55,13 @@ void OpenSotPosturalAdapter::update(double time, double period)
     _opensot_post->setReference(_qref);
 }
 
+const Eigen::MatrixXd& OpenSotPosturalAdapter::getOpenSotWeight() const
+{
+    int w_size = _opensot_post->getTaskSize();
+    _W = _ci_task->getWeight().bottomRightCorner(w_size, w_size);
+    return _W;
+}
+
 OpenSoT::OptvarHelper::VariableVector OpenSotPosturalAdapter::getRequiredVariables() const
 {
     return {{"qddot", _model->getJointNum()}};

@@ -1,0 +1,79 @@
+solver_options:
+    regularization: 1e-3
+    back_end: "osqp"
+    variables: [force_l_sole, force_r_sole, force_l_hand]
+
+stack:
+    - ["LeftWrench", "RightWrench", "LHandWrench"]
+
+constraints:
+    - "UnderactuatedDyn"
+    - "LeftFc"
+    - "LHandFc"
+    - "RightFc"
+    - "LeftFlims"
+    - "LHandFlims"
+    - "RightFlims"
+
+RightWrench:
+    lib_name: libcartesio_acceleration_support.so
+    type: "Force"
+    link: "r_sole"
+    weight: [1, 1, 1, 1e3, 1e3, 1e3]
+
+LeftWrench:
+    lib_name: libcartesio_acceleration_support.so
+    type: "Force"
+    link: "l_sole"
+    weight: [1, 1, 1, 1e3, 1e3, 1e3]
+
+RightFc:
+    lib_name: libcartesio_acceleration_support.so
+    type: "FrictionCone"
+    link: "r_sole"
+    local: true
+
+LeftFc:
+    lib_name: libcartesio_acceleration_support.so
+    type: "FrictionCone"
+    link: "l_sole"
+    local: true
+
+RightFlims:
+    lib_name: libcartesio_acceleration_support.so
+    type: "ForceLimits"
+    link: "r_sole"
+    min: [-1000, -1000, -1000, -10, -10, 0]
+    max: [1000, 1000, 1000,  10, 10, 0]
+
+LeftFlims:
+    lib_name: libcartesio_acceleration_support.so
+    type: "ForceLimits"
+    link: "l_sole"
+    min: [-1000, -1000, -1000, -10, -10, 0]
+    max: [1000, 1000, 1000, 10, 10, 0]
+
+LHandWrench:
+    lib_name: libcartesio_acceleration_support.so
+    type: "Force"
+    link: "l_wrist"
+    weight: [1, 1, 1, 1e3, 1e3, 1e3]
+
+LHandFc:
+    lib_name: libcartesio_acceleration_support.so
+    type: "FrictionCone"
+    link: "l_wrist"
+
+LHandFlims:
+    lib_name: libcartesio_acceleration_support.so
+    type: "ForceLimits"
+    link: "l_wrist"
+    min: [-1000, -1000, -1000, 0, 0, 0]
+    max: [1000, 1000, 1000, 0, 0, 0]
+
+
+UnderactuatedDyn:
+    lib_name: libcartesio_acceleration_support.so
+    type: "DynamicFeasibility"
+    contacts: ["l_sole", "r_sole", "l_wrist"]
+    dynamics: false

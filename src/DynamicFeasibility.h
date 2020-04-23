@@ -11,20 +11,23 @@ using DynamicFeasibilitySoT = OpenSoT::constraints::acceleration::DynamicFeasibi
 
 namespace XBot { namespace Cartesian { namespace acceleration {
 
-class DynamicFeasibilityImpl : public ConstraintDescription
+class DynamicFeasibilityImpl : public TaskDescriptionImpl,
+                               public virtual ConstraintDescription
 {
 public:
 
     CARTESIO_DECLARE_SMART_PTR(DynamicFeasibilityImpl)
 
     DynamicFeasibilityImpl(YAML::Node task_node,
-                           ModelInterface::ConstPtr model);
+                           Context::ConstPtr context);
 
     std::vector<std::string> getContactLinks() const;
+    bool dynamicsEnabled() const;
 
 
 private:
 
+    bool _dynamics;
     std::vector<std::string> _contact_links;
 
 };
@@ -36,15 +39,11 @@ class OpenSotDynFeasAdapter :
 public:
 
     OpenSotDynFeasAdapter(ConstraintDescription::Ptr constr,
-                          ModelInterface::ConstPtr model);
+                          Context::ConstPtr context);
 
     OpenSoT::OptvarHelper::VariableVector getRequiredVariables() const override;
 
     virtual ConstraintPtr constructConstraint() override;
-
-    virtual bool initialize(const OpenSoT::OptvarHelper& vars) override;
-
-    virtual void update(double time, double period) override;
 
     virtual ~OpenSotDynFeasAdapter() override = default;
 

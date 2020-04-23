@@ -1,0 +1,17 @@
+<launch>
+
+    <include file="$(find cartesian_interface)/examples/launch/coman.launch"/>
+
+    <node pkg="cartesio_acceleration_support"
+            type="force_optimization_node"
+            name="fopt_node">
+
+            <param name="tf_prefix" value="ci"/>
+
+            <param name="problem_description"
+                   textfile="$(find cartesio_acceleration_support)/examples/config/coman_stack_force.yaml"/>
+
+            <remap from="force_opt/joint_states" to="/cartesian/solution"/>
+    </node>
+
+</launch>
