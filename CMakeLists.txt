@@ -18,6 +18,7 @@ add_library(cartesio_acceleration_support SHARED
     src/Force.cpp
     src/ForceLimits.cpp
     src/FrictionCone.cpp
+    src/CoP.cpp
     src/Interaction.cpp
     src/Postural.cpp
     src/JointLimits.cpp
