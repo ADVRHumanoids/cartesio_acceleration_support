@@ -80,7 +80,7 @@ ConstraintPtr OpenSotCoPAdapter::constructConstraint()
 
 OpenSoT::OptvarHelper::VariableVector OpenSotCoPAdapter::getRequiredVariables() const
 {
-    return {{_var_name, 4}};
+    return {{_var_name, 6}};
 }
 
 void OpenSotCoPAdapter::update(double time, double period)
