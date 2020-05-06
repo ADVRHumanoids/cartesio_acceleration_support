@@ -14,6 +14,22 @@ constraints:
     - "LeftFlims"
     - "LHandFlims"
     - "RightFlims"
+    - "LeftCoP"
+    - "RightCoP"
+
+LeftCoP:
+    lib_name: libcartesio_acceleration_support.so
+    type: "CoP"
+    link: "l_sole"
+    x_limits: [-0.05, 0.1]
+    y_limits: [-0.05, 0.05]
+
+RightCoP:
+    lib_name: libcartesio_acceleration_support.so
+    type: "CoP"
+    link: "r_sole"
+    x_limits: [-0.05, 0.1]
+    y_limits: [-0.05, 0.05]
 
 RightWrench:
     lib_name: libcartesio_acceleration_support.so
