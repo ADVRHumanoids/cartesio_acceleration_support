@@ -25,7 +25,7 @@ PYBIND11_MODULE(tasks, m)
 {
     py::class_<ForceTask, TaskDescription, ForceTask::Ptr>
             (m, "ForceTask", py::multiple_inheritance())
-            .def_static("FromTask", from_task, py::return_value_policy::reference_internal)
+            .def(py::init(from_task), py::return_value_policy::reference)
             .def("getForceValue", &ForceTask::getForceValue)
             .def("setForceReference", &ForceTask::setForceReference);
 
