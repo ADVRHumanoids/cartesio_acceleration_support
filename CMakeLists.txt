@@ -3,8 +3,7 @@ project(cartesio_acceleration_support)
 
 add_compile_options(-std=c++11)
 
-find_package(catkin REQUIRED COMPONENTS cartesian_interface roscpp urdf)
-find_package(fmt REQUIRED)
+find_package(catkin REQUIRED COMPONENTS cartesian_interface urdf)
 
 catkin_package()
 
@@ -24,8 +23,7 @@ add_library(cartesio_acceleration_support SHARED
     src/VelocityLimits.cpp)
 
 target_link_libraries(cartesio_acceleration_support
-    ${catkin_LIBRARIES}
-    fmt::fmt-header-only)
+    ${catkin_LIBRARIES})
 
 install(TARGETS cartesio_acceleration_support
         DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
