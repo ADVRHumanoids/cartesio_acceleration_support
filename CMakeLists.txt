@@ -25,7 +25,7 @@ add_library(cartesio_acceleration_support SHARED
 
 target_link_libraries(cartesio_acceleration_support
     ${catkin_LIBRARIES}
-    cartesian_interface::CartesianInterface)
+    ${cartesian_interface_LIBRARIES})
 
 install(TARGETS cartesio_acceleration_support
         DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -36,7 +36,7 @@ install(TARGETS cartesio_acceleration_support
 add_executable(force_optimization_node src/ForceOptimizationNode.cpp)
 
 target_link_libraries(force_optimization_node
-    cartesian_interface::CartesianInterface
+    ${cartesian_interface_LIBRARIES}
     ${catkin_LIBRARIES}
     )
 
