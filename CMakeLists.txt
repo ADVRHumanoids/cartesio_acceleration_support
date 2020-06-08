@@ -3,7 +3,8 @@ project(cartesio_acceleration_support)
 
 add_compile_options(-std=c++11)
 
-find_package(catkin REQUIRED COMPONENTS cartesian_interface urdf)
+find_package(cartesian_interface REQUIRED)
+find_package(catkin REQUIRED COMPONENTS urdf)
 
 catkin_package()
 
@@ -23,7 +24,8 @@ add_library(cartesio_acceleration_support SHARED
     src/VelocityLimits.cpp)
 
 target_link_libraries(cartesio_acceleration_support
-    ${catkin_LIBRARIES})
+    ${catkin_LIBRARIES}
+    cartesian_interface::CartesianInterface)
 
 install(TARGETS cartesio_acceleration_support
         DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -32,7 +34,12 @@ install(TARGETS cartesio_acceleration_support
 
 # force_optimization_node executable
 add_executable(force_optimization_node src/ForceOptimizationNode.cpp)
-target_link_libraries(force_optimization_node ${catkin_LIBRARIES} yaml-cpp)
+
+target_link_libraries(force_optimization_node
+    cartesian_interface::CartesianInterface
+    ${catkin_LIBRARIES}
+    )
+
 install(TARGETS force_optimization_node
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
     )
