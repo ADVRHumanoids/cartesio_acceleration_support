@@ -8,6 +8,7 @@
 
 #include <cartesian_interface/CartesianInterfaceImpl.h>
 #include <cartesian_interface/ros/RosServerClass.h>
+#include <OpenSoT/tasks/Aggregated.h>
 
 using namespace XBot;
 using namespace XBot::Cartesian;
@@ -18,6 +19,13 @@ class ForceOptimizationClass
 public:
 
     ForceOptimizationClass(std::string ns);
+
+    /**
+     * @brief getObjective
+     * @param T a task reference
+     * @return the value of the cost function associated to task T
+     */
+//    double getObjective();
 
 private:
 

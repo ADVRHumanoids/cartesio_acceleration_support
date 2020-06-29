@@ -160,3 +160,8 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
     }
 
 }
+
+//double ForceOptimizationClass::getObjective()
+//{
+
+//}
