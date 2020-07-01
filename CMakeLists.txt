@@ -36,7 +36,7 @@ install(TARGETS cartesio_acceleration_support
 
 # force_optimization_node executable
 add_executable(force_optimization_node src/ForceOptimizationNode.cpp)
-target_link_libraries(force_optimization_node ${catkin_LIBRARIES} yaml-cpp)
+target_link_libraries(force_optimization_node ${catkin_LIBRARIES} yaml-cpp cartesio_acceleration_support)
 install(TARGETS force_optimization_node
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
     )
