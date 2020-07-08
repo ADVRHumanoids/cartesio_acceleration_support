@@ -2,17 +2,16 @@
 #define DYNAMICFEASIBILITY_H
 
 
-#include <cartesian_interface/sdk/problem/Constraint.h>
+#include <cartesian_interface/sdk/problem/Task.h>
 #include <cartesian_interface/sdk/opensot/OpenSotTask.h>
 
-#include <OpenSoT/constraints/acceleration/DynamicFeasibility.h>
+#include <OpenSoT/tasks/acceleration/DynamicFeasibility.h>
 
-using DynamicFeasibilitySoT = OpenSoT::constraints::acceleration::DynamicFeasibility;
+using DynamicFeasibilitySoT = OpenSoT::tasks::acceleration::DynamicFeasibility;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
 
-class DynamicFeasibilityImpl : public TaskDescriptionImpl,
-                               public virtual ConstraintDescription
+class DynamicFeasibilityImpl : public TaskDescriptionImpl
 {
 public:
 
@@ -33,17 +32,17 @@ private:
 };
 
 class OpenSotDynFeasAdapter :
-        public OpenSotConstraintAdapter
+        public OpenSotTaskAdapter
 {
 
 public:
 
-    OpenSotDynFeasAdapter(ConstraintDescription::Ptr constr,
+    OpenSotDynFeasAdapter(TaskDescription::Ptr task,
                           Context::ConstPtr context);
 
     OpenSoT::OptvarHelper::VariableVector getRequiredVariables() const override;
 
-    virtual ConstraintPtr constructConstraint() override;
+    virtual TaskPtr constructTask() override;
 
     virtual ~OpenSotDynFeasAdapter() override = default;
 

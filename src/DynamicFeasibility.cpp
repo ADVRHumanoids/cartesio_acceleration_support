@@ -26,11 +26,11 @@ bool DynamicFeasibilityImpl::dynamicsEnabled() const
     return _dynamics;
 }
 
-OpenSotDynFeasAdapter::OpenSotDynFeasAdapter(ConstraintDescription::Ptr constr,
+OpenSotDynFeasAdapter::OpenSotDynFeasAdapter(TaskDescription::Ptr task,
                                              Context::ConstPtr context):
-    OpenSotConstraintAdapter (constr, context)
+    OpenSotTaskAdapter (task, context)
 {
-    _ci_dynfeas = std::dynamic_pointer_cast<DynamicFeasibilityImpl>(constr);
+    _ci_dynfeas = std::dynamic_pointer_cast<DynamicFeasibilityImpl>(task);
     if(!_ci_dynfeas) throw std::runtime_error("Provided task description "
                                               "does not have expected type 'DynamicFeasibilityImpl'");
 }
@@ -52,7 +52,7 @@ OpenSoT::OptvarHelper::VariableVector OpenSotDynFeasAdapter::getRequiredVariable
     return vars;
 }
 
-ConstraintPtr OpenSotDynFeasAdapter::constructConstraint()
+TaskPtr OpenSotDynFeasAdapter::constructTask()
 {
     std::vector<OpenSoT::AffineHelper> cl_vars;
 
@@ -80,4 +80,4 @@ ConstraintPtr OpenSotDynFeasAdapter::constructConstraint()
 }
 
 CARTESIO_REGISTER_TASK_PLUGIN(DynamicFeasibilityImpl, DynamicFeasibility)
-CARTESIO_REGISTER_OPENSOT_CONSTR_PLUGIN(OpenSotDynFeasAdapter, DynamicFeasibility)
+CARTESIO_REGISTER_OPENSOT_TASK_PLUGIN(OpenSotDynFeasAdapter, DynamicFeasibility)
