@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS urdf)
 catkin_package()
 
 include_directories(src/
-    ${catkin_INCLUDE_DIRS})
+    ${catkin_INCLUDE_DIRS} ${cartesian_interface_INCLUDE_DIRS})
 
 # cartesio_acceleration_support library
 add_library(cartesio_acceleration_support SHARED
