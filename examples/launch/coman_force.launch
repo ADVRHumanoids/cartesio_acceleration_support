@@ -4,7 +4,7 @@
 
     <node pkg="cartesio_acceleration_support"
             type="force_optimization_node"
-            name="fopt_node">
+            name="fopt_node" >
 
             <param name="tf_prefix" value="ci"/>
 
