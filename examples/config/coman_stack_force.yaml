@@ -4,15 +4,13 @@ solver_options:
     variables: [force_l_sole, force_r_sole, force_l_hand]
 
 stack:
-    - ["LeftWrench", "RightWrench", "LHandWrench"]
+    - ["LeftWrench", "RightWrench"]
 
 constraints:
     - "UnderactuatedDyn"
     - "LeftFc"
-    - "LHandFc"
     - "RightFc"
     - "LeftFlims"
-    - "LHandFlims"
     - "RightFlims"
     - "LeftCoP"
     - "RightCoP"
@@ -91,5 +89,5 @@ LHandFlims:
 UnderactuatedDyn:
     lib_name: libcartesio_acceleration_support.so
     type: "DynamicFeasibility"
-    contacts: ["l_sole", "r_sole", "l_wrist"]
+    contacts: ["l_sole", "r_sole"]
     dynamics: false

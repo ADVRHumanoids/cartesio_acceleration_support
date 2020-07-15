@@ -88,6 +88,8 @@ ForceTaskRos::ForceTaskRos(TaskDescription::Ptr task,
 
 void ForceTaskRos::run(ros::Time time)
 {
+    TaskRos::run(time);
+
     geometry_msgs::WrenchStamped msg;
     auto f = _ci_force->getForceValue();
     f.head<3>() = _ci_force->getForceFrame().linear().transpose() * f.head<3>();
@@ -137,6 +139,8 @@ void OpenSotForceAdapter::update(double time, double period)
 
 void OpenSotForceAdapter::processSolution(const Eigen::VectorXd& solution)
 {
+    OpenSotTaskAdapter::processSolution(solution);
+
     Eigen::Vector6d f;
     _var.getValue(solution, f);
     _ci_force->setForceValue(f);
