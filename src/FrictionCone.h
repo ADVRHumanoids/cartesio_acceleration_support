@@ -33,6 +33,11 @@ public:
      */
     virtual void setContactRotationMatrix(const Eigen::Matrix3d& R) = 0;
 
+    static bool IsFrictionConeConstraint(TaskDescription::ConstPtr task);
+    static bool IsFrictionConeConstraint(TaskDescription::Ptr task);
+    static FrictionCone::Ptr AsFrictionConeConstraint(TaskDescription::Ptr task);
+    static FrictionCone::ConstPtr AsFrictionConeConstraint(TaskDescription::ConstPtr task);
+
 };
 
 class FrictionConeImpl : virtual public FrictionCone,

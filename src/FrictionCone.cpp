@@ -12,6 +12,27 @@ std::string get_name(YAML::Node node)
 
 }
 
+bool FrictionCone::IsFrictionConeConstraint(TaskDescription::ConstPtr task)
+{
+    return static_cast<bool>(AsFrictionConeConstraint(task));
+}
+
+bool FrictionCone::IsFrictionConeConstraint(TaskDescription::Ptr task)
+{
+    return static_cast<bool>(AsFrictionConeConstraint(task));
+}
+
+FrictionCone::Ptr FrictionCone::AsFrictionConeConstraint(TaskDescription::Ptr task)
+{
+    return std::dynamic_pointer_cast<FrictionCone>(task);
+}
+
+FrictionCone::ConstPtr FrictionCone::AsFrictionConeConstraint(TaskDescription::ConstPtr task)
+{
+    return std::dynamic_pointer_cast<const FrictionCone>(task);
+}
+
+
 FrictionConeImpl::FrictionConeImpl(YAML::Node node,
                                    Context::ConstPtr context):
     TaskDescriptionImpl(node, context, get_name(node), 5)
