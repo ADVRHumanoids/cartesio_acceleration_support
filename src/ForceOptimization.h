@@ -20,12 +20,7 @@ public:
 
     ForceOptimizationClass(std::string ns);
 
-    /**
-     * @brief getObjective
-     * @param T a task reference
-     * @return the value of the cost function associated to task T
-     */
-//    double getObjective();
+    const CartesianInterfaceImpl::Ptr getCartesianInterface() const;
 
 private:
 

@@ -161,7 +161,8 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 
 }
 
-//double ForceOptimizationClass::getObjective()
-//{
+const CartesianInterfaceImpl::Ptr ForceOptimizationClass::getCartesianInterface() const
+{
+    return _ci;
+}
 
-//}
