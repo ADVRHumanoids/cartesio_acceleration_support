@@ -66,6 +66,11 @@ Eigen::Matrix3d FrictionConeImpl::getContactFrame() const
     return _R;
 }
 
+void FrictionConeImpl::setContactRotationMatrix(const Eigen::Matrix3d &R)
+{
+    _R = R;
+}
+
 
 
 OpenSotFrictionConeAdapter::OpenSotFrictionConeAdapter(ConstraintDescription::Ptr constr,
@@ -88,6 +93,7 @@ ConstraintPtr OpenSotFrictionConeAdapter::constructConstraint()
                                             _vars.getVariable(_var_name),
                                             const_cast<ModelInterface&>(*_model),
                                             fc);
+    _R.setIdentity();
 
     return _opensot_fc;
 }
@@ -110,6 +116,15 @@ void OpenSotFrictionConeAdapter::update(double time, double period)
 
         _opensot_fc->setContactRotationMatrix(w_R_link * link_R_c);
     }
+    else
+    {
+        if(_R != _ci_fc->getContactFrame())
+        {
+            _opensot_fc->setContactRotationMatrix(_ci_fc->getContactFrame());
+            _R = _ci_fc->getContactFrame();
+        }
+    }
+
 }
 
 CARTESIO_REGISTER_TASK_PLUGIN(FrictionConeImpl, FrictionCone)

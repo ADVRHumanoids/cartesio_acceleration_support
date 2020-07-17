@@ -24,6 +24,14 @@ public:
     virtual bool isLocal() const = 0;
     virtual double getFrictionCoeff() const = 0;
     virtual Eigen::Matrix3d getContactFrame() const = 0;
+    /**
+     * @brief setContactRotationMatrix
+     * @param R is the rotation expressed in world frame if isLocal() = false, otherwise is the
+     * local rotation applied to the rotation of the link_name expressed in world:
+     *      w_R_link * R
+     * NOTE: local = true is convenient for surface contacts
+     */
+    virtual void setContactRotationMatrix(const Eigen::Matrix3d& R) = 0;
 
 };
 
@@ -42,6 +50,7 @@ public:
     bool isLocal() const override;
     double getFrictionCoeff() const override;
     Eigen::Matrix3d getContactFrame() const override;
+    void setContactRotationMatrix(const Eigen::Matrix3d& R) override;
 
 private:
 
@@ -72,6 +81,11 @@ private:
     FrictionCone::Ptr _ci_fc;
     FcSoT::Ptr _opensot_fc;
     std::string _var_name;
+    /**
+     * @brief _R used when is_local = true. It stores the last used rotation for the friction cone
+     * to avoid computation of constraints even if not needed
+     */
+    Eigen::MatrixX3d _R;
 };
 
 } } }
