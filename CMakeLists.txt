@@ -31,6 +31,11 @@ install(TARGETS cartesio_acceleration_support
         DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         )
 
+FILE(GLOB installation_header "src/*.h")
+install(FILES ${installation_header}
+    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+    )
+
 
 # force_optimization_node executable
 add_executable(force_optimization_node src/ForceOptimizationNode.cpp)
