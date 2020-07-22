@@ -11,7 +11,17 @@ using DynamicFeasibilitySoT = OpenSoT::tasks::acceleration::DynamicFeasibility;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
 
-class DynamicFeasibilityImpl : public TaskDescriptionImpl
+class DynamicFeasibility : public virtual TaskDescription
+{
+public:
+    CARTESIO_DECLARE_SMART_PTR(DynamicFeasibility)
+
+    virtual std::vector<std::string> getContactLinks() const = 0;
+    virtual bool dynamicsEnabled() const = 0;
+};
+
+class DynamicFeasibilityImpl : public TaskDescriptionImpl,
+                               public virtual DynamicFeasibility
 {
 public:
 
@@ -20,8 +30,8 @@ public:
     DynamicFeasibilityImpl(YAML::Node task_node,
                            Context::ConstPtr context);
 
-    std::vector<std::string> getContactLinks() const;
-    bool dynamicsEnabled() const;
+    std::vector<std::string> getContactLinks() const override;
+    bool dynamicsEnabled() const override;
 
 
 private:
