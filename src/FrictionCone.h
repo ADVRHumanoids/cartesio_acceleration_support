@@ -33,11 +33,7 @@ public:
      */
     virtual void setContactRotationMatrix(const Eigen::Matrix3d& R) = 0;
 
-    static bool IsFrictionConeConstraint(TaskDescription::ConstPtr task);
-    static bool IsFrictionConeConstraint(TaskDescription::Ptr task);
-    static FrictionCone::Ptr AsFrictionConeConstraint(TaskDescription::Ptr task);
-    static FrictionCone::ConstPtr AsFrictionConeConstraint(TaskDescription::ConstPtr task);
-
+    virtual void setFrictionCoeff(const double mu) = 0;
 };
 
 class FrictionConeImpl : virtual public FrictionCone,
@@ -56,6 +52,7 @@ public:
     double getFrictionCoeff() const override;
     Eigen::Matrix3d getContactFrame() const override;
     void setContactRotationMatrix(const Eigen::Matrix3d& R) override;
+    void setFrictionCoeff(const double mu) override;
 
 private:
 
@@ -90,7 +87,8 @@ private:
      * @brief _R used when is_local = true. It stores the last used rotation for the friction cone
      * to avoid computation of constraints even if not needed
      */
-    Eigen::MatrixX3d _R;
+    Eigen::Matrix3d _R;
+    double _mu;
 };
 
 } } }

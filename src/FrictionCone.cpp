@@ -12,27 +12,6 @@ std::string get_name(YAML::Node node)
 
 }
 
-bool FrictionCone::IsFrictionConeConstraint(TaskDescription::ConstPtr task)
-{
-    return static_cast<bool>(AsFrictionConeConstraint(task));
-}
-
-bool FrictionCone::IsFrictionConeConstraint(TaskDescription::Ptr task)
-{
-    return static_cast<bool>(AsFrictionConeConstraint(task));
-}
-
-FrictionCone::Ptr FrictionCone::AsFrictionConeConstraint(TaskDescription::Ptr task)
-{
-    return std::dynamic_pointer_cast<FrictionCone>(task);
-}
-
-FrictionCone::ConstPtr FrictionCone::AsFrictionConeConstraint(TaskDescription::ConstPtr task)
-{
-    return std::dynamic_pointer_cast<const FrictionCone>(task);
-}
-
-
 FrictionConeImpl::FrictionConeImpl(YAML::Node node,
                                    Context::ConstPtr context):
     TaskDescriptionImpl(node, context, get_name(node), 5)
@@ -82,6 +61,11 @@ double FrictionConeImpl::getFrictionCoeff() const
     return _mu;
 }
 
+void FrictionConeImpl::setFrictionCoeff(const double mu)
+{
+    _mu = mu;
+}
+
 Eigen::Matrix3d FrictionConeImpl::getContactFrame() const
 {
     return _R;
@@ -115,6 +99,7 @@ ConstraintPtr OpenSotFrictionConeAdapter::constructConstraint()
                                             const_cast<ModelInterface&>(*_model),
                                             fc);
     _R.setIdentity();
+    _mu = 1.;
 
     return _opensot_fc;
 }
@@ -144,6 +129,12 @@ void OpenSotFrictionConeAdapter::update(double time, double period)
             _opensot_fc->setContactRotationMatrix(_ci_fc->getContactFrame());
             _R = _ci_fc->getContactFrame();
         }
+    }
+
+    if(_mu != _ci_fc->getFrictionCoeff())
+    {
+        _opensot_fc->setMu(_ci_fc->getFrictionCoeff());
+        _mu = _ci_fc->getFrictionCoeff();
     }
 
 }
