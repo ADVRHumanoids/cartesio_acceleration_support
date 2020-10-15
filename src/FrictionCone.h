@@ -91,6 +91,54 @@ private:
     double _mu;
 };
 
+class FrictionConeRos : public ServerApi::TaskRos
+{
+
+public:
+
+
+    CARTESIO_DECLARE_SMART_PTR(FrictionConeRos)
+
+    FrictionConeRos(TaskDescription::Ptr task,
+                 RosContext::Ptr context);
+
+    void run(ros::Time time) override;
+
+private:
+
+    FrictionCone::Ptr _ci_fc;
+    ros::Subscriber _fc_rot_sub, _fc_coeff_sub;
+    ros::Publisher _fc_rot_pub, _fc_coeff_pub, _fc_viz, _fc_porcodio;
+};
+
+class FrictionConeRosClient : public ClientApi::TaskRos,
+        virtual public FrictionCone
+{
+
+public:
+
+
+    CARTESIO_DECLARE_SMART_PTR(FrictionConeRosClient)
+
+    FrictionConeRosClient(std::string name,
+                          ros::NodeHandle nh);
+
+    const std::string& getLinkName() const override;
+    bool isLocal() const override;
+    double getFrictionCoeff() const override;
+    Eigen::Matrix3d getContactFrame() const override;
+    void setContactRotationMatrix(const Eigen::Matrix3d& R) override;
+    void setFrictionCoeff(const double mu) override;
+
+private:
+
+    ros::Publisher _fc_rot_pub, _fc_coeff_pub;
+    ros::Subscriber _fc_coeff_sub, _fc_rot_sub;
+    double _mu_value;
+    Eigen::Matrix3d _cf_rot;
+    std::string _link_name;
+};
+
 } } }
 
 
