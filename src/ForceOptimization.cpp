@@ -75,6 +75,7 @@ void ForceOptimizationClass::load_model()
     try
     {
         _robot = RobotInterface::getRobot(cfg);
+        _robot->setControlMode(ControlMode::Effort());
     }
     catch(std::runtime_error& e)
     {
