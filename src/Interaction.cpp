@@ -27,6 +27,7 @@ TaskPtr OpenSotInteractionAdapter::constructTask()
                                                      _ci_cart->getBaseLink(),
                                                      _vars.getVariable("qddot"));
 
+    _opensot_cart->setGainType(CartesianSoT::Force);
 
     return _opensot_cart;
 }
@@ -57,7 +58,7 @@ void OpenSotInteractionAdapter::update(double time, double period)
     Eigen::Vector6d vref;
     _ci_cart->getPoseReference(Tref, &vref);
 
-    _opensot_cart->setLambda(0, 0);
+    _opensot_cart->setLambda(1, 1);
 
     _opensot_cart->setReference(Tref, vref);
 
