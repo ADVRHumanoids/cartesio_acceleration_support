@@ -27,7 +27,7 @@ TaskPtr OpenSotInteractionAdapter::constructTask()
                                                      _ci_cart->getBaseLink(),
                                                      _vars.getVariable("qddot"));
 
-    _opensot_cart->setGainType(CartesianSoT::Force);
+    _opensot_cart->setGainType(OpenSoT::tasks::acceleration::Force);
 
     return _opensot_cart;
 }
