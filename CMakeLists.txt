@@ -25,6 +25,7 @@ add_library(cartesio_acceleration_support SHARED
     src/PosturalInteraction.cpp
     src/Postural.cpp
     src/JointLimits.cpp
+    src/TorqueLimits.cpp
     src/VelocityLimits.cpp
     src/ForceOptimization.cpp)
 
