@@ -36,6 +36,9 @@ OpenSotTorqueLimitsAdapter::OpenSotTorqueLimitsAdapter(ConstraintDescription::Pt
                                             "does not have expected type 'TorqueLimits'");
 }
 
+CARTESIO_REGISTER_TASK_PLUGIN(TorqueLimitsImpl, TorqueLimits)
+CARTESIO_REGISTER_OPENSOT_CONSTR_PLUGIN(OpenSotTorqueLimitsAdapter, TorqueLimits)
+
 ConstraintPtr OpenSotTorqueLimitsAdapter::constructConstraint()
 {
     std::vector<OpenSoT::AffineHelper> cl_vars;
