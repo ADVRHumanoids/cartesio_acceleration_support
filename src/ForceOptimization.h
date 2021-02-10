@@ -22,6 +22,8 @@ public:
 
     const CartesianInterfaceImpl::Ptr getCartesianInterface() const;
 
+    void run() {}
+
 private:
 
     static bool is_model_floating_base(const urdf::ModelInterface& urdf);
@@ -42,6 +44,8 @@ private:
     std::string _fopt_pb_str;
     double _rate;
     std::string _tf_prefix, _tf_prefix_slash;
+
+    ImuSensor::ConstPtr _imu;
 
     ModelInterface::Ptr _model;
     RobotInterface::Ptr _robot;

@@ -75,7 +75,8 @@ void ForceOptimizationClass::load_model()
     try
     {
         _robot = RobotInterface::getRobot(cfg);
-        _robot->setControlMode(ControlMode::Effort());
+        _robot->setControlMode(ControlMode::Effort() + ControlMode::Stiffness() + ControlMode::Damping());
+        _imu = _robot->getImu().begin()->second;
     }
     catch(std::runtime_error& e)
     {
@@ -87,7 +88,6 @@ void ForceOptimizationClass::load_model()
         _js_sub = _nh.subscribe("joint_states", 1,
                                 &ForceOptimizationClass::on_js_recv, this);
     }
-
 }
 
 void ForceOptimizationClass::load_ci()
@@ -140,6 +140,7 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
     {
         _robot->sense(false);
         _model->syncFrom_no_update(*_robot, Sync::Position);
+        _model->setFloatingBaseState(_imu);
     }
 
     _model->update();
