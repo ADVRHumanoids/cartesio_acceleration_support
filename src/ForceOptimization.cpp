@@ -3,7 +3,8 @@
 ForceOptimizationClass::ForceOptimizationClass(std::string ns):
     _npr("~"),
     _nh(ns),
-    _time(0.0)
+    _time(0.0),
+    _active(true)
 {
     load_params();
     load_model();
@@ -11,6 +12,8 @@ ForceOptimizationClass::ForceOptimizationClass(std::string ns):
 
     _timer = _nh.createTimer(ros::Duration(1./_rate),
                              &ForceOptimizationClass::on_timer_cb, this);
+
+    _activation_srv = _nh.advertiseService("set_activation", &ForceOptimizationClass::activation_service, this);
 
     _timer.start();
 }
@@ -155,7 +158,7 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 
     _rosapi->run();
 
-    if(_robot)
+    if(_robot && _active)
     {
         _robot->setReferenceFrom(*_model, Sync::Effort);
         _robot->move();
@@ -166,5 +169,10 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 const CartesianInterfaceImpl::Ptr ForceOptimizationClass::getCartesianInterface() const
 {
     return _ci;
+}
+
+bool ForceOptimizationClass::activation_service(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+{
+    _active = !_active;
 }
 

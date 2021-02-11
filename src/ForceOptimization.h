@@ -22,8 +22,6 @@ public:
 
     const CartesianInterfaceImpl::Ptr getCartesianInterface() const;
 
-    void run() {}
-
 private:
 
     static bool is_model_floating_base(const urdf::ModelInterface& urdf);
@@ -35,10 +33,13 @@ private:
     void on_js_recv(sensor_msgs::JointStateConstPtr msg);
     void on_timer_cb(const ros::TimerEvent&);
 
+    bool activation_service(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
+
     ros::NodeHandle _npr;
     ros::NodeHandle _nh;
     ros::Subscriber _js_sub;
     ros::Timer _timer;
+    ros::ServiceServer _activation_srv;
 
     std::string _urdf, _srdf;
     std::string _fopt_pb_str;
@@ -54,6 +55,7 @@ private:
 
     JointNameMap _jmap;
     double _time;
+    bool _active;
 
 };
 
