@@ -52,6 +52,8 @@ private:
     RobotInterface::Ptr _robot;
     CartesianInterfaceImpl::Ptr _ci;
     RosServerClass::Ptr _rosapi;
+    
+    Eigen::VectorXd _tau_offset;
 
     JointNameMap _jmap;
     double _time;

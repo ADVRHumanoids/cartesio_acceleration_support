@@ -91,6 +91,16 @@ void ForceOptimizationClass::load_model()
         _js_sub = _nh.subscribe("joint_states", 1,
                                 &ForceOptimizationClass::on_js_recv, this);
     }
+    
+    if(_npr.hasParam("torque_offset"))
+    {
+        auto torque_offset = _npr.param("torque_offset", std::map<std::string, double>());
+        XBot::JointNameMap tau_off_map_xbot(torque_offset.begin(), torque_offset.end());
+        _tau_offset.resize(_model->getJointNum());
+        _model->mapToEigen(tau_off_map_xbot, _tau_offset);
+    }
+    else
+        _tau_offset.resize(0);
 }
 
 void ForceOptimizationClass::load_ci()
@@ -138,7 +148,8 @@ void ForceOptimizationClass::on_js_recv(sensor_msgs::JointStateConstPtr msg)
 
 void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 {
-
+    Eigen::VectorXd tau;
+    
     if(_robot)
     {
         _robot->sense(false);
@@ -160,6 +171,12 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 
     if(_robot && _active)
     {
+        if (_tau_offset.size() > 0)
+        {
+            _model->getJointEffort(tau);
+            tau += _tau_offset;
+            _model->setJointEffort(tau);
+        }
         _robot->setReferenceFrom(*_model, Sync::Effort);
         _robot->move();
     }
