@@ -6,6 +6,9 @@
 #include <cartesian_interface/sdk/ros/server_api/TaskRos.h>
 #include <cartesian_interface/sdk/ros/client_api/TaskRos.h>
 
+#include <geometry_msgs/WrenchStamped.h>
+#include <eigen_conversions/eigen_msg.h>
+
 #include <OpenSoT/constraints/force/WrenchLimits.h>
 
 using FlimSoT = OpenSoT::constraints::force::WrenchLimits;
@@ -95,7 +98,34 @@ private:
 
     ForceLimits::Ptr _ci_force;
     ros::ServiceServer _toggle_srv;
+    ros::Subscriber _flim_min_sub, _flim_max_sub;
+    Eigen::Vector6d _flim_min, _flim_max;
 
+};
+
+class ForceLimitsRosClient : public ClientApi::TaskRos,
+        virtual public ForceLimits
+{
+public:
+
+
+    CARTESIO_DECLARE_SMART_PTR(ForceLimitsRosClient)
+
+    ForceLimitsRosClient(std::string name,
+                         ros::NodeHandle nh);
+
+    const std::string& getLinkName() const override;
+    void setLimits(const Eigen::Vector6d& fmin, const Eigen::Vector6d& fmax) override;
+    void getLimits(Eigen::Vector6d& fmin, Eigen::Vector6d& fmax) const override;
+    bool isLocal() const override;
+    void setZero() override;
+    void restore() override;
+
+private:
+    ros::Subscriber _flim_min_sub, _flim_max_sub;
+    ros::Publisher _flim_min_pub, _flim_max_pub;
+    Eigen::Vector6d _flim_min_value, _flim_max_value, _flim_min_ref, _flim_max_ref;
+    std::string _link_name;
 };
 
 } } }

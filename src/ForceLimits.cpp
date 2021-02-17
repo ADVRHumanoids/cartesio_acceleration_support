@@ -205,12 +205,94 @@ ForceLimitsRos::ForceLimitsRos(TaskDescription::Ptr task,
     _toggle_srv = _ctx->nh().advertiseService<Req,Res>(task->getName() + "/toggle_contact",
                                                        toggle_cb);
 
+    _ci_force->getLimits(_flim_min, _flim_max);
+    auto on_flim_min_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    {
+        tf::wrenchMsgToEigen(msg->wrench, _flim_min);
+        _ci_force->setLimits(_flim_min, _flim_max);
+    };
+    auto on_flim_max_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    {
+        tf::wrenchMsgToEigen(msg->wrench, _flim_max);
+        _ci_force->setLimits(_flim_min, _flim_max);
+    };
+
+    _flim_min_sub = _ctx->nh().subscribe<geometry_msgs::WrenchStamped>(task->getName() + "/limits_min", 5, on_flim_min_recv);
+    _flim_max_sub = _ctx->nh().subscribe<geometry_msgs::WrenchStamped>(task->getName() + "/limits_max", 5, on_flim_max_recv);
+
     /* Register type name */
     registerType("ForceLimits");
 }
 
+ForceLimitsRosClient::ForceLimitsRosClient(std::string name, ros::NodeHandle nh):
+TaskRos(name, nh)
+{
+    _link_name = name.substr(11);
+
+    auto on_f_lim_min_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    {
+        tf::wrenchMsgToEigen(msg->wrench, _flim_min_value);
+    };
+    auto on_f_lim_max_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    {
+        tf::wrenchMsgToEigen(msg->wrench, _flim_max_value);
+    };
+
+    _flim_min_sub = _nh.subscribe<geometry_msgs::WrenchStamped>(name + "/value_min", 1,
+                                                              on_f_lim_min_recv);
+    _flim_max_sub = _nh.subscribe<geometry_msgs::WrenchStamped>(name + "/value_max", 1,
+                                                              on_f_lim_max_recv);
+
+    _flim_min_pub = _nh.advertise<geometry_msgs::WrenchStamped>(name + "/limits_min", 1, true);
+    _flim_max_pub = _nh.advertise<geometry_msgs::WrenchStamped>(name + "/limits_max", 1, true);
+}
+
+const std::string& ForceLimitsRosClient::getLinkName() const
+{
+    return _link_name;
+}
+
+void ForceLimitsRosClient::setLimits(const Eigen::Vector6d &fmin, const Eigen::Vector6d &fmax)
+{
+    geometry_msgs::WrenchStamped msg_min, msg_max;
+
+    msg_min.header.frame_id = "ci/" + _link_name;
+    msg_min.header.stamp = ros::Time::now();
+    tf::wrenchEigenToMsg(fmin, msg_min.wrench);
+
+    msg_max.header.frame_id = "ci/" + _link_name;
+    msg_max.header.stamp = ros::Time::now();
+    tf::wrenchEigenToMsg(fmax, msg_max.wrench);
+
+    _flim_min_pub.publish(msg_min);
+    _flim_max_pub.publish(msg_max);
+}
+
+void ForceLimitsRosClient::getLimits(Eigen::Vector6d &fmin, Eigen::Vector6d &fmax) const
+{
+    fmin = _flim_min_value;
+    fmax = _flim_max_value;
+}
+
+void ForceLimitsRosClient::setZero()
+{
+    _flim_min_value.setZero();
+    _flim_max_value.setZero();
+}
+
+void ForceLimitsRosClient::restore()
+{
+    throw std::runtime_error("Unsupported " + std::string() + __func__);
+}
+
+bool ForceLimitsRosClient::isLocal() const
+{
+    throw std::runtime_error("Unsupported " + std::string() + __func__);
+}
+
 CARTESIO_REGISTER_TASK_PLUGIN(ForceLimitsImpl, ForceLimits)
 CARTESIO_REGISTER_OPENSOT_CONSTR_PLUGIN(OpenSotForceLimitsAdapter, ForceLimits)
+CARTESIO_REGISTER_ROS_CLIENT_API_PLUGIN(ForceLimitsRosClient, ForceLimits)
 CARTESIO_REGISTER_ROS_API_PLUGIN(ForceLimitsRos, ForceLimits)
 
 

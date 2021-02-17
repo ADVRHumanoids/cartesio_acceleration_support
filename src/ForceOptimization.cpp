@@ -4,7 +4,7 @@ ForceOptimizationClass::ForceOptimizationClass(std::string ns):
     _npr("~"),
     _nh(ns),
     _time(0.0),
-    _active(true)
+    _active(false)
 {
     load_params();
     load_model();
@@ -164,6 +164,8 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
         ROS_WARN("Unable to solve");
         return;
     }
+
+
 
     _time += 1./_rate;
 
