@@ -206,19 +206,19 @@ ForceLimitsRos::ForceLimitsRos(TaskDescription::Ptr task,
                                                        toggle_cb);
 
     _ci_force->getLimits(_flim_min, _flim_max);
-    auto on_flim_min_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    auto on_flim_min_recv = [this](geometry_msgs::WrenchConstPtr msg)
     {
-        tf::wrenchMsgToEigen(msg->wrench, _flim_min);
+        tf::wrenchMsgToEigen(*msg, _flim_min);
         _ci_force->setLimits(_flim_min, _flim_max);
     };
-    auto on_flim_max_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    auto on_flim_max_recv = [this](geometry_msgs::WrenchConstPtr msg)
     {
-        tf::wrenchMsgToEigen(msg->wrench, _flim_max);
+        tf::wrenchMsgToEigen(*msg, _flim_max);
         _ci_force->setLimits(_flim_min, _flim_max);
     };
 
-    _flim_min_sub = _ctx->nh().subscribe<geometry_msgs::WrenchStamped>(task->getName() + "/limits_min", 5, on_flim_min_recv);
-    _flim_max_sub = _ctx->nh().subscribe<geometry_msgs::WrenchStamped>(task->getName() + "/limits_max", 5, on_flim_max_recv);
+    _flim_min_sub = _ctx->nh().subscribe<geometry_msgs::Wrench>(task->getName() + "/limits_min", 5, on_flim_min_recv);
+    _flim_max_sub = _ctx->nh().subscribe<geometry_msgs::Wrench>(task->getName() + "/limits_max", 5, on_flim_max_recv);
 
     /* Register type name */
     registerType("ForceLimits");
@@ -229,22 +229,22 @@ TaskRos(name, nh)
 {
     _link_name = name.substr(11);
 
-    auto on_f_lim_min_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    auto on_f_lim_min_recv = [this](geometry_msgs::WrenchConstPtr msg)
     {
-        tf::wrenchMsgToEigen(msg->wrench, _flim_min_value);
+        tf::wrenchMsgToEigen(*msg, _flim_min_value);
     };
-    auto on_f_lim_max_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
+    auto on_f_lim_max_recv = [this](geometry_msgs::WrenchConstPtr msg)
     {
-        tf::wrenchMsgToEigen(msg->wrench, _flim_max_value);
+        tf::wrenchMsgToEigen(*msg, _flim_max_value);
     };
 
-    _flim_min_sub = _nh.subscribe<geometry_msgs::WrenchStamped>(name + "/value_min", 1,
+    _flim_min_sub = _nh.subscribe<geometry_msgs::Wrench>(name + "/value_min", 10,
                                                               on_f_lim_min_recv);
-    _flim_max_sub = _nh.subscribe<geometry_msgs::WrenchStamped>(name + "/value_max", 1,
+    _flim_max_sub = _nh.subscribe<geometry_msgs::Wrench>(name + "/value_max", 10,
                                                               on_f_lim_max_recv);
 
-    _flim_min_pub = _nh.advertise<geometry_msgs::WrenchStamped>(name + "/limits_min", 1, true);
-    _flim_max_pub = _nh.advertise<geometry_msgs::WrenchStamped>(name + "/limits_max", 1, true);
+    _flim_min_pub = _nh.advertise<geometry_msgs::Wrench>(name + "/limits_min", 10, true);
+    _flim_max_pub = _nh.advertise<geometry_msgs::Wrench>(name + "/limits_max", 10, true);
 }
 
 const std::string& ForceLimitsRosClient::getLinkName() const
@@ -254,15 +254,10 @@ const std::string& ForceLimitsRosClient::getLinkName() const
 
 void ForceLimitsRosClient::setLimits(const Eigen::Vector6d &fmin, const Eigen::Vector6d &fmax)
 {
-    geometry_msgs::WrenchStamped msg_min, msg_max;
+    geometry_msgs::Wrench msg_min, msg_max;
 
-    msg_min.header.frame_id = "ci/" + _link_name;
-    msg_min.header.stamp = ros::Time::now();
-    tf::wrenchEigenToMsg(fmin, msg_min.wrench);
-
-    msg_max.header.frame_id = "ci/" + _link_name;
-    msg_max.header.stamp = ros::Time::now();
-    tf::wrenchEigenToMsg(fmax, msg_max.wrench);
+    tf::wrenchEigenToMsg(fmin, msg_min);
+    tf::wrenchEigenToMsg(fmax, msg_max);
 
     _flim_min_pub.publish(msg_min);
     _flim_max_pub.publish(msg_max);
