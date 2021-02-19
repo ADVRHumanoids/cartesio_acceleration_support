@@ -77,7 +77,7 @@ public:
 private:
 
     ForceTask::Ptr _ci_force;
-    ros::Publisher _f_pub;
+    ros::Publisher _f_pub, _f_fpub_visual, _f_tpub_visual;
     ros::Subscriber _fref_sub;
 };
 
