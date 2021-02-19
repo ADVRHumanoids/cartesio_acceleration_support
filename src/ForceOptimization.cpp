@@ -69,6 +69,7 @@ void ForceOptimizationClass::load_model()
     cfg.set_parameter<std::string>("framework", "ROS");
 
     _model = ModelInterface::getModel(cfg);
+    _rspub = std::make_shared<XBot::Cartesian::Utils::RobotStatePublisher>(_model);
 
     Eigen::VectorXd q0;
     _model->getRobotState("home", q0);
@@ -158,6 +159,7 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
     }
 
     _model->update();
+    _rspub->publishTransforms(ros::Time::now(), "ci");
 
     if(!_ci->update(_time, 1./_rate))
     {
@@ -165,11 +167,11 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
         return;
     }
 
-
-
     _time += 1./_rate;
 
     _rosapi->run();
+    
+    std::cout << _tau_offset << std::endl;
 
     if(_robot && _active)
     {
@@ -190,8 +192,17 @@ const CartesianInterfaceImpl::Ptr ForceOptimizationClass::getCartesianInterface(
     return _ci;
 }
 
-bool ForceOptimizationClass::activation_service(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+bool ForceOptimizationClass::activation_service(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
 {
-    _active = !_active;
+    if (req.data == _active)
+    {
+        res.message = "You are setting the same activation state!";
+        res.success = true;
+        return res.success;
+    }
+    _active = req.data;
+    res.message = "Activation state set!";
+    res.success = true;
+    return res.success;
 }
 

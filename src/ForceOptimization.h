@@ -5,10 +5,13 @@
 #include <sensor_msgs/JointState.h>
 
 #include <XBotInterface/RobotInterface.h>
+#include <cartesian_interface/utils/RobotStatePublisher.h>
 
 #include <cartesian_interface/CartesianInterfaceImpl.h>
 #include <cartesian_interface/ros/RosServerClass.h>
 #include <OpenSoT/tasks/Aggregated.h>
+
+#include <std_srvs/SetBool.h>
 
 using namespace XBot;
 using namespace XBot::Cartesian;
@@ -33,7 +36,7 @@ private:
     void on_js_recv(sensor_msgs::JointStateConstPtr msg);
     void on_timer_cb(const ros::TimerEvent&);
 
-    bool activation_service(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res);
+    bool activation_service(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
 
     ros::NodeHandle _npr;
     ros::NodeHandle _nh;
@@ -58,7 +61,8 @@ private:
     JointNameMap _jmap;
     double _time;
     bool _active;
-
+    
+    std::shared_ptr<XBot::Cartesian::Utils::RobotStatePublisher> _rspub;
 };
 
 
