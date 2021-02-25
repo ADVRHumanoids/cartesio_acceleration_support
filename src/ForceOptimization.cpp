@@ -79,7 +79,7 @@ void ForceOptimizationClass::load_model()
     try
     {
         _robot = RobotInterface::getRobot(cfg);
-        _robot->setControlMode(ControlMode::Effort() + ControlMode::Stiffness() + ControlMode::Damping());
+        _robot->setControlMode(ControlMode::Effort());
         _imu = _robot->getImu().begin()->second;
     }
     catch(std::runtime_error& e)
