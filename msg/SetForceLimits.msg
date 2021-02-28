@@ -1,0 +1,2 @@
+geometry_msgs/Wrench fmin
+geometry_msgs/Wrench fmax
