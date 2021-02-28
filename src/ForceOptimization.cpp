@@ -171,8 +171,6 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 
     _rosapi->run();
     
-    std::cout << _tau_offset << std::endl;
-
     if(_robot && _active)
     {
         if (_tau_offset.size() > 0)
