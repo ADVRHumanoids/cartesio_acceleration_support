@@ -205,20 +205,15 @@ ForceLimitsRos::ForceLimitsRos(TaskDescription::Ptr task,
     _toggle_srv = _ctx->nh().advertiseService<Req,Res>(task->getName() + "/toggle_contact",
                                                        toggle_cb);
 
-    _ci_force->getLimits(_flim_min, _flim_max);
-    auto on_flim_min_recv = [this](geometry_msgs::WrenchConstPtr msg)
+    auto on_flim_recv = [this](cartesio_acceleration_support::SetForceLimitsConstPtr msg)
     {
-        tf::wrenchMsgToEigen(*msg, _flim_min);
-        _ci_force->setLimits(_flim_min, _flim_max);
-    };
-    auto on_flim_max_recv = [this](geometry_msgs::WrenchConstPtr msg)
-    {
-        tf::wrenchMsgToEigen(*msg, _flim_max);
-        _ci_force->setLimits(_flim_min, _flim_max);
+        Eigen::Vector6d flim_min, flim_max;
+        tf::wrenchMsgToEigen(msg->fmin, flim_min);
+        tf::wrenchMsgToEigen(msg->fmax, flim_max);
+        _ci_force->setLimits(flim_min, flim_max);
     };
 
-    _flim_min_sub = _ctx->nh().subscribe<geometry_msgs::Wrench>(task->getName() + "/limits_min", 5, on_flim_min_recv);
-    _flim_max_sub = _ctx->nh().subscribe<geometry_msgs::Wrench>(task->getName() + "/limits_max", 5, on_flim_max_recv);
+    _flim_sub = _ctx->nh().subscribe<cartesio_acceleration_support::SetForceLimits>(task->getName() + "/force_limits", 5, on_flim_recv);
 
     /* Register type name */
     registerType("ForceLimits");
@@ -229,22 +224,17 @@ TaskRos(name, nh)
 {
     _link_name = name.substr(11);
 
-    auto on_f_lim_min_recv = [this](geometry_msgs::WrenchConstPtr msg)
+    auto on_f_lim_recv = [this](cartesio_acceleration_support::SetForceLimitsConstPtr msg)
     {
-        tf::wrenchMsgToEigen(*msg, _flim_min_value);
-    };
-    auto on_f_lim_max_recv = [this](geometry_msgs::WrenchConstPtr msg)
-    {
-        tf::wrenchMsgToEigen(*msg, _flim_max_value);
+        tf::wrenchMsgToEigen(msg->fmin, _flim_min_value);
+        tf::wrenchMsgToEigen(msg->fmax, _flim_max_value);
     };
 
-    _flim_min_sub = _nh.subscribe<geometry_msgs::Wrench>(name + "/value_min", 10,
-                                                              on_f_lim_min_recv);
-    _flim_max_sub = _nh.subscribe<geometry_msgs::Wrench>(name + "/value_max", 10,
-                                                              on_f_lim_max_recv);
+    _flim_sub = _nh.subscribe<cartesio_acceleration_support::SetForceLimits>(name + "/value", 10,
+                                                                                    on_f_lim_recv);
 
-    _flim_min_pub = _nh.advertise<geometry_msgs::Wrench>(name + "/limits_min", 10, true);
-    _flim_max_pub = _nh.advertise<geometry_msgs::Wrench>(name + "/limits_max", 10, true);
+
+    _flim_pub = _nh.advertise<cartesio_acceleration_support::SetForceLimits>(name + "/force_limits", 10, true);
 }
 
 const std::string& ForceLimitsRosClient::getLinkName() const
@@ -254,13 +244,12 @@ const std::string& ForceLimitsRosClient::getLinkName() const
 
 void ForceLimitsRosClient::setLimits(const Eigen::Vector6d &fmin, const Eigen::Vector6d &fmax)
 {
-    geometry_msgs::Wrench msg_min, msg_max;
+    cartesio_acceleration_support::SetForceLimits msg;
 
-    tf::wrenchEigenToMsg(fmin, msg_min);
-    tf::wrenchEigenToMsg(fmax, msg_max);
+    tf::wrenchEigenToMsg(fmin, msg.fmin);
+    tf::wrenchEigenToMsg(fmax, msg.fmax);
 
-    _flim_min_pub.publish(msg_min);
-    _flim_max_pub.publish(msg_max);
+    _flim_pub.publish(msg);
 }
 
 void ForceLimitsRosClient::getLimits(Eigen::Vector6d &fmin, Eigen::Vector6d &fmax) const

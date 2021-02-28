@@ -8,6 +8,7 @@
 
 #include <geometry_msgs/WrenchStamped.h>
 #include <eigen_conversions/eigen_msg.h>
+#include <cartesio_acceleration_support/SetForceLimits.h>
 
 #include <OpenSoT/constraints/force/WrenchLimits.h>
 
@@ -98,8 +99,7 @@ private:
 
     ForceLimits::Ptr _ci_force;
     ros::ServiceServer _toggle_srv;
-    ros::Subscriber _flim_min_sub, _flim_max_sub;
-    Eigen::Vector6d _flim_min, _flim_max;
+    ros::Subscriber _flim_sub;
 
 };
 
@@ -122,8 +122,8 @@ public:
     void restore() override;
 
 private:
-    ros::Subscriber _flim_min_sub, _flim_max_sub;
-    ros::Publisher _flim_min_pub, _flim_max_pub;
+    ros::Subscriber _flim_sub;
+    ros::Publisher _flim_pub;
     Eigen::Vector6d _flim_min_value, _flim_max_value, _flim_min_ref, _flim_max_ref;
     std::string _link_name;
 };
