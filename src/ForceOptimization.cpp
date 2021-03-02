@@ -160,6 +160,7 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 
     _model->update();
     _rspub->publishTransforms(ros::Time::now(), "ci");
+    _ci->reset(1./_rate);
 
     if(!_ci->update(_time, 1./_rate))
     {
