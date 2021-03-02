@@ -95,11 +95,14 @@ public:
     ForceLimitsRos(TaskDescription::Ptr task,
                    RosContext::Ptr context);
 
+    void run(ros::Time time) override;
+
 private:
 
     ForceLimits::Ptr _ci_force;
     ros::ServiceServer _toggle_srv;
     ros::Subscriber _flim_sub;
+    ros::Publisher _flim_pub;
 
 };
 

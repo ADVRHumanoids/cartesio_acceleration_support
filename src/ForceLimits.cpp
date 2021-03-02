@@ -213,10 +213,24 @@ ForceLimitsRos::ForceLimitsRos(TaskDescription::Ptr task,
         _ci_force->setLimits(flim_min, flim_max);
     };
 
+    _flim_pub = _ctx->nh().advertise<cartesio_acceleration_support::SetForceLimits>(task->getName() + "/value", 10);
     _flim_sub = _ctx->nh().subscribe<cartesio_acceleration_support::SetForceLimits>(task->getName() + "/force_limits", 5, on_flim_recv);
 
     /* Register type name */
     registerType("ForceLimits");
+}
+
+void ForceLimitsRos::run(ros::Time time)
+{
+    TaskRos::run(time);
+
+    Eigen::Vector6d fmin, fmax;
+    cartesio_acceleration_support::SetForceLimits msg;
+    _ci_force->getLimits(fmin, fmax);
+    tf::wrenchEigenToMsg(fmin, msg.fmin);
+    tf::wrenchEigenToMsg(fmax, msg.fmax);
+
+    _flim_pub.publish(msg);
 }
 
 ForceLimitsRosClient::ForceLimitsRosClient(std::string name, ros::NodeHandle nh):
