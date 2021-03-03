@@ -5,6 +5,7 @@
 
 #include "Force.h"
 #include "ForceLimits.h"
+#include "FrictionCone.h"
 
 namespace py = pybind11;
 
@@ -30,6 +31,16 @@ auto from_contraint = [](ConstraintDescription::Ptr constraint)
         throw py::type_error("Constrain type does not match 'ForceLimits'");
     }
     return flimit;
+};
+
+auto from_friction_cone_constraint = [](ConstraintDescription::Ptr constraint)
+{
+    auto frict_cone = std::dynamic_pointer_cast<FrictionCone>(constraint);
+    if(!frict_cone)
+    {
+        throw py::type_error("Constrain type does not match 'FrictionCone'");
+    }
+    return frict_cone;
 };
 
 auto get_limits = [](ForceLimitsRosClient& self)
@@ -59,5 +70,16 @@ PYBIND11_MODULE(tasks, m)
 
     py::class_<ForceLimitsRosClient, ForceLimits, ForceLimitsRosClient::Ptr>
             (m, "ForceLimitsRos", py::multiple_inheritance());
+
+    py::class_<FrictionCone, TaskDescription, FrictionCone::Ptr>
+            (m, "FrictionCone", py::multiple_inheritance())
+            .def(py::init(from_friction_cone_constraint), py::return_value_policy::reference)
+            .def("setContactRotationMatrix", &FrictionCone::setContactRotationMatrix)
+            .def("setFrictionCoeff", &FrictionCone::setFrictionCoeff)
+            .def("getContactFrame", &FrictionCone::getContactFrame)
+            .def("getFrictionCoeff", &FrictionCone::getFrictionCoeff);
+
+    py::class_<FrictionConeRosClient, FrictionCone, FrictionConeRosClient::Ptr>
+            (m, "FrictionConeRos", py::multiple_inheritance());
 }
 

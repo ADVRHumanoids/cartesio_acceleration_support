@@ -1,5 +1,7 @@
 #include "FrictionCone.h"
 
+#include <fmt/format.h>
+
 using namespace XBot::Cartesian::acceleration;
 
 namespace  {
@@ -139,5 +141,120 @@ void OpenSotFrictionConeAdapter::update(double time, double period)
 
 }
 
+FrictionConeRos::FrictionConeRos(TaskDescription::Ptr task, RosContext::Ptr context):
+    TaskRos(task, context)
+{
+    _ci_fc = std::dynamic_pointer_cast<FrictionCone>(task);
+    if(!_ci_fc) throw std::runtime_error("Provided task description "
+                                            "does not have expected type 'ForceLimits'");
+
+    auto on_fc_rcv = [this](std_msgs::Float64::ConstPtr msg)
+    {
+        double fc = msg->data;
+        _ci_fc->setFrictionCoeff(fc);
+    };
+
+    auto on_rot_rcv = [this](geometry_msgs::Quaternion::ConstPtr msg)
+    {
+        Eigen::Quaternion<double> quat;
+        tf::quaternionMsgToEigen(*msg, quat);
+        Eigen::Matrix3d R;
+        R = quat.toRotationMatrix();
+
+        _ci_fc->setContactRotationMatrix(R);
+    };
+
+    _fc_pub = _ctx->nh().advertise<std_msgs::Float64>(task->getName() + "/friction_coefficient_value", 10);
+    _fc_sub = _ctx->nh().subscribe<std_msgs::Float64>(task->getName() + "/friction_coefficient", 10, on_fc_rcv);
+    _rot_pub = _ctx->nh().advertise<geometry_msgs::Quaternion>(task->getName() + "/rotation_value", 10);
+    _rot_sub = _ctx->nh().subscribe<geometry_msgs::Quaternion>(task->getName() + "/rotation", 10, on_rot_rcv);
+
+    registerType("FrictionCone");
+}
+
+void FrictionConeRos::run(ros::Time time)
+{
+    TaskRos::run(time);
+
+    geometry_msgs::Quaternion msg_rot;
+    std_msgs::Float64 msg_fc;
+
+    Eigen::Matrix3d R;
+    double fc;
+
+    fc = _ci_fc->getFrictionCoeff();
+    msg_fc.data = fc;
+
+    R = _ci_fc->getContactFrame();
+    tf::quaternionEigenToMsg(Eigen::Quaternion<double>(R), msg_rot);
+
+    _fc_pub.publish(msg_fc);
+    _rot_pub.publish(msg_rot);
+}
+
+FrictionConeRosClient::FrictionConeRosClient(std::string name, ros::NodeHandle nh):
+    TaskRos(name, nh)
+{
+    _link_name = name.substr(15);
+
+    auto on_rotation_mtrx_rcv = [this](geometry_msgs::Quaternion::ConstPtr msg)
+    {
+        Eigen::Quaternion<double> quat;
+        tf::quaternionMsgToEigen(*msg, quat);
+        _R = quat.toRotationMatrix();
+    };
+
+    auto on_friction_coeff_rcv = [this](std_msgs::Float64::ConstPtr msg)
+    {
+        _fc = msg->data;
+    };
+
+    _rot_sub = _nh.subscribe<geometry_msgs::Quaternion>(name + "/rotation_value", 10, on_rotation_mtrx_rcv);
+    _fc_sub = _nh.subscribe<std_msgs::Float64>(name + "/friction_coefficient_value", 10, on_friction_coeff_rcv);
+
+    _rot_pub = _nh.advertise<geometry_msgs::Quaternion>(name + "/rotation", 10, true);
+    _fc_pub = _nh.advertise<std_msgs::Float64>(name + "friction_coefficient", 10, true);
+}
+
+const std::string& FrictionConeRosClient::getLinkName() const
+{
+    return _link_name;
+}
+
+bool FrictionConeRosClient::isLocal() const
+{
+    throw std::runtime_error("Unsupported " + std::string() + __func__);
+}
+
+double FrictionConeRosClient::getFrictionCoeff() const
+{
+    return _fc;
+}
+
+Eigen::Matrix3d FrictionConeRosClient::getContactFrame() const
+{
+    return _R;
+}
+
+void FrictionConeRosClient::setFrictionCoeff(const double mu)
+{
+    std_msgs::Float64 msg;
+    msg.data = mu;
+
+    _fc_pub.publish(msg);
+}
+
+void FrictionConeRosClient::setContactRotationMatrix(const Eigen::Matrix3d &R)
+{
+    geometry_msgs::Quaternion msg;
+    tf::quaternionEigenToMsg(Eigen::Quaternion<double>(R), msg);
+
+    _rot_pub.publish(msg);
+}
+
 CARTESIO_REGISTER_TASK_PLUGIN(FrictionConeImpl, FrictionCone)
 CARTESIO_REGISTER_OPENSOT_CONSTR_PLUGIN(OpenSotFrictionConeAdapter, FrictionCone)
+CARTESIO_REGISTER_ROS_CLIENT_API_PLUGIN(FrictionConeRosClient, FrictionCone)
+CARTESIO_REGISTER_ROS_API_PLUGIN(FrictionConeRos, FrictionCone)
+
+
