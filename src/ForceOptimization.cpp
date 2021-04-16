@@ -3,7 +3,8 @@
 ForceOptimizationClass::ForceOptimizationClass(std::string ns):
     _npr("~"),
     _nh(ns),
-    _time(0.0)
+    _time(0.0),
+    _active(false)
 {
     load_params();
     load_model();
@@ -11,6 +12,8 @@ ForceOptimizationClass::ForceOptimizationClass(std::string ns):
 
     _timer = _nh.createTimer(ros::Duration(1./_rate),
                              &ForceOptimizationClass::on_timer_cb, this);
+
+    _activation_srv = _nh.advertiseService("set_activation", &ForceOptimizationClass::activation_service, this);
 
     _timer.start();
 }
@@ -66,6 +69,7 @@ void ForceOptimizationClass::load_model()
     cfg.set_parameter<std::string>("framework", "ROS");
 
     _model = ModelInterface::getModel(cfg);
+    _rspub = std::make_shared<XBot::Cartesian::Utils::RobotStatePublisher>(_model);
 
     Eigen::VectorXd q0;
     _model->getRobotState("home", q0);
@@ -76,6 +80,7 @@ void ForceOptimizationClass::load_model()
     {
         _robot = RobotInterface::getRobot(cfg);
         _robot->setControlMode(ControlMode::Effort());
+        _imu = _robot->getImu().begin()->second;
     }
     catch(std::runtime_error& e)
     {
@@ -87,7 +92,16 @@ void ForceOptimizationClass::load_model()
         _js_sub = _nh.subscribe("joint_states", 1,
                                 &ForceOptimizationClass::on_js_recv, this);
     }
-
+    
+    if(_npr.hasParam("torque_offset"))
+    {
+        auto torque_offset = _npr.param("torque_offset", std::map<std::string, double>());
+        XBot::JointNameMap tau_off_map_xbot(torque_offset.begin(), torque_offset.end());
+        _tau_offset.resize(_model->getJointNum());
+        _model->mapToEigen(tau_off_map_xbot, _tau_offset);
+    }
+    else
+        _tau_offset.resize(0);
 }
 
 void ForceOptimizationClass::load_ci()
@@ -135,14 +149,18 @@ void ForceOptimizationClass::on_js_recv(sensor_msgs::JointStateConstPtr msg)
 
 void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 {
-
+    Eigen::VectorXd tau;
+    
     if(_robot)
     {
         _robot->sense(false);
         _model->syncFrom_no_update(*_robot, Sync::Position);
+        _model->setFloatingBaseState(_imu);
     }
 
     _model->update();
+    _rspub->publishTransforms(ros::Time::now(), "ci");
+    _ci->reset(1./_rate);
 
     if(!_ci->update(_time, 1./_rate))
     {
@@ -153,9 +171,15 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
     _time += 1./_rate;
 
     _rosapi->run();
-
-    if(_robot)
+    
+    if(_robot && _active)
     {
+        if (_tau_offset.size() > 0)
+        {
+            _model->getJointEffort(tau);
+            tau += _tau_offset;
+            _model->setJointEffort(tau);
+        }
         _robot->setReferenceFrom(*_model, Sync::Effort);
         _robot->move();
     }
@@ -165,5 +189,19 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
 const CartesianInterfaceImpl::Ptr ForceOptimizationClass::getCartesianInterface() const
 {
     return _ci;
+}
+
+bool ForceOptimizationClass::activation_service(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+    if (req.data == _active)
+    {
+        res.message = "You are setting the same activation state!";
+        res.success = true;
+        return res.success;
+    }
+    _active = req.data;
+    res.message = "Activation state set!";
+    res.success = true;
+    return res.success;
 }
 

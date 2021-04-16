@@ -3,14 +3,31 @@ project(cartesio_acceleration_support)
 
 add_compile_options(-std=c++11)
 
-find_package(catkin REQUIRED COMPONENTS roscpp urdf)
+find_package(catkin REQUIRED COMPONENTS 
+                    roscpp
+                    urdf
+                    geometry_msgs
+                    message_generation)
 find_package(cartesian_interface REQUIRED)
 find_package(matlogger2 REQUIRED)
 
-catkin_package()
 
 include_directories(src/
     ${catkin_INCLUDE_DIRS} ${cartesian_interface_INCLUDE_DIRS})
+    
+add_message_files(
+    FILES
+    SetForceLimits.msg)
+    
+generate_messages(
+    DEPENDENCIES
+    geometry_msgs)
+    
+catkin_package(
+    #INCLUDE_DIRS include
+    CATKIN_DEPENDS roscpp message_runtime geometry_msgs
+    DEPENDS
+    )
 
 # cartesio_acceleration_support library
 add_library(cartesio_acceleration_support SHARED

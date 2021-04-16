@@ -1,6 +1,7 @@
 #include "Force.h"
 
 #include <geometry_msgs/WrenchStamped.h>
+#include <visualization_msgs/Marker.h>
 #include <eigen_conversions/eigen_msg.h>
 
 using namespace XBot::Cartesian::acceleration;
@@ -70,6 +71,8 @@ ForceTaskRos::ForceTaskRos(TaskDescription::Ptr task,
 
     _f_pub = _ctx->nh().advertise<geometry_msgs::WrenchStamped>(task->getName() + "/value",
                                                                 1);
+    _f_fpub_visual = _ctx->nh().advertise<visualization_msgs::Marker>(task->getName() + "/force/value", 1);
+    _f_tpub_visual = _ctx->nh().advertise<visualization_msgs::Marker>(task->getName() + "/torque/value", 1);
 
     auto on_fref_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
     {
@@ -98,6 +101,33 @@ void ForceTaskRos::run(ros::Time time)
     msg.header.stamp = time;
     msg.header.frame_id = _ctx->tf_prefix_slash() + _ci_force->getLinkName();
     _f_pub.publish(msg);
+
+    visualization_msgs::Marker msg_force, msg_torque;
+    f = _ci_force->getForceValue();
+    f.head<3>() = _ci_force->getForceFrame().linear().transpose() * f.head<3>();
+    f.tail<3>() = _ci_force->getForceFrame().linear().transpose() * f.tail<3>();
+    f = f * 0.005;
+    msg_force.header.stamp = time;
+    msg_force.header.frame_id = _ctx->tf_prefix_slash() + _ci_force->getLinkName();
+    msg_force.type = visualization_msgs::Marker::ARROW;
+    msg_force.action = visualization_msgs::Marker::ADD;
+    msg_force.points.resize(2);
+    msg_force.points[0].x = 0;  msg_force.points[0].y = 0;  msg_force.points[0].z = 0;
+    msg_force.points[1].x = f(0);   msg_force.points[1].y = f(1);   msg_force.points[1].z = f(2);
+    msg_force.color.r = 1;   msg_force.color.b = 0;   msg_force.color.g = 0;   msg_force.color.a = 1;
+    msg_force.scale.x = 0.05;    msg_force.scale.y = 0.075;    msg_force.scale.z = 0.2;
+    _f_fpub_visual.publish(msg_force);
+
+    msg_torque.header.stamp = time;
+    msg_torque.header.frame_id = _ctx->tf_prefix_slash() + _ci_force->getLinkName();
+    msg_torque.type = visualization_msgs::Marker::ARROW;
+    msg_torque.action = visualization_msgs::Marker::ADD;
+    msg_torque.points.resize(2);
+    msg_torque.points[0].x = 0;   msg_torque.points[0].y = 0;   msg_torque.points[0].z = 0;
+    msg_torque.points[1].x = f(3);   msg_torque.points[1].y = f(4);   msg_torque.points[1].z = f(5);
+    msg_torque.color.r = 0;   msg_torque.color.b = 1;   msg_torque.color.g = 0;   msg_torque.color.a = 1;
+    msg_torque.scale.x = 0.05;    msg_torque.scale.y = 0.075;    msg_torque.scale.z = 0.2;
+    _f_tpub_visual.publish(msg_torque);
 }
 
 

@@ -205,12 +205,92 @@ ForceLimitsRos::ForceLimitsRos(TaskDescription::Ptr task,
     _toggle_srv = _ctx->nh().advertiseService<Req,Res>(task->getName() + "/toggle_contact",
                                                        toggle_cb);
 
+    auto on_flim_recv = [this](cartesio_acceleration_support::SetForceLimitsConstPtr msg)
+    {
+        Eigen::Vector6d flim_min, flim_max;
+        tf::wrenchMsgToEigen(msg->fmin, flim_min);
+        tf::wrenchMsgToEigen(msg->fmax, flim_max);
+        _ci_force->setLimits(flim_min, flim_max);
+    };
+
+    _flim_pub = _ctx->nh().advertise<cartesio_acceleration_support::SetForceLimits>(task->getName() + "/value", 10);
+    _flim_sub = _ctx->nh().subscribe<cartesio_acceleration_support::SetForceLimits>(task->getName() + "/force_limits", 5, on_flim_recv);
+
     /* Register type name */
     registerType("ForceLimits");
 }
 
+void ForceLimitsRos::run(ros::Time time)
+{
+    TaskRos::run(time);
+
+    Eigen::Vector6d fmin, fmax;
+    cartesio_acceleration_support::SetForceLimits msg;
+    _ci_force->getLimits(fmin, fmax);
+    tf::wrenchEigenToMsg(fmin, msg.fmin);
+    tf::wrenchEigenToMsg(fmax, msg.fmax);
+
+    _flim_pub.publish(msg);
+}
+
+ForceLimitsRosClient::ForceLimitsRosClient(std::string name, ros::NodeHandle nh):
+TaskRos(name, nh)
+{
+    _link_name = name.substr(11);
+
+    auto on_f_lim_recv = [this](cartesio_acceleration_support::SetForceLimitsConstPtr msg)
+    {
+        tf::wrenchMsgToEigen(msg->fmin, _flim_min_value);
+        tf::wrenchMsgToEigen(msg->fmax, _flim_max_value);
+    };
+
+    _flim_sub = _nh.subscribe<cartesio_acceleration_support::SetForceLimits>(name + "/value", 10,
+                                                                                    on_f_lim_recv);
+
+
+    _flim_pub = _nh.advertise<cartesio_acceleration_support::SetForceLimits>(name + "/force_limits", 10, true);
+}
+
+const std::string& ForceLimitsRosClient::getLinkName() const
+{
+    return _link_name;
+}
+
+void ForceLimitsRosClient::setLimits(const Eigen::Vector6d &fmin, const Eigen::Vector6d &fmax)
+{
+    cartesio_acceleration_support::SetForceLimits msg;
+
+    tf::wrenchEigenToMsg(fmin, msg.fmin);
+    tf::wrenchEigenToMsg(fmax, msg.fmax);
+
+    _flim_pub.publish(msg);
+}
+
+void ForceLimitsRosClient::getLimits(Eigen::Vector6d &fmin, Eigen::Vector6d &fmax) const
+{
+    fmin = _flim_min_value;
+    fmax = _flim_max_value;
+}
+
+void ForceLimitsRosClient::setZero()
+{
+    _flim_min_value.setZero();
+    _flim_max_value.setZero();
+}
+
+void ForceLimitsRosClient::restore()
+{
+    throw std::runtime_error("Unsupported " + std::string() + __func__);
+}
+
+bool ForceLimitsRosClient::isLocal() const
+{
+    throw std::runtime_error("Unsupported " + std::string() + __func__);
+}
+
 CARTESIO_REGISTER_TASK_PLUGIN(ForceLimitsImpl, ForceLimits)
 CARTESIO_REGISTER_OPENSOT_CONSTR_PLUGIN(OpenSotForceLimitsAdapter, ForceLimits)
+CARTESIO_REGISTER_ROS_CLIENT_API_PLUGIN(ForceLimitsRosClient, ForceLimits)
 CARTESIO_REGISTER_ROS_API_PLUGIN(ForceLimitsRos, ForceLimits)
 
 
