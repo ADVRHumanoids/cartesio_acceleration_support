@@ -27,7 +27,8 @@ add_library(cartesio_acceleration_support SHARED
     src/JointLimits.cpp
     src/TorqueLimits.cpp
     src/VelocityLimits.cpp
-    src/ForceOptimization.cpp)
+    src/ForceOptimization.cpp
+    src/NormalTorque.cpp)
 
 target_link_libraries(cartesio_acceleration_support
     PUBLIC
