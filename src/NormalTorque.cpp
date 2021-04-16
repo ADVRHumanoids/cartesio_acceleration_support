@@ -22,8 +22,8 @@ NormalTorqueImpl::NormalTorqueImpl(YAML::Node node,
     if(auto xlims = node["x_limits"])
     {
         auto tmp = xlims.as<double>();
-        _x_lim[0] = tmp;
-        _x_lim[1] = -tmp;
+        _x_lim[0] = -tmp;
+        _x_lim[1] = tmp;
     }
     else
         throw std::invalid_argument("Mandatory field 'x_limits' is missing!");
@@ -31,8 +31,8 @@ NormalTorqueImpl::NormalTorqueImpl(YAML::Node node,
     if(auto ylims = node["y_limits"])
     {
         auto tmp = ylims.as<double>();
-        _y_lim[0] = tmp;
-        _y_lim[1] = -tmp;
+        _y_lim[0] = -tmp;
+        _y_lim[1] = tmp;
     }
     else
         throw std::invalid_argument("Mandatory field 'y_limits' is missing!");
@@ -84,7 +84,7 @@ ConstraintPtr OpenSotNormalTorqueAdapter::constructConstraint()
                 _ci_nt->getLinkName(),
                 _vars.getVariable(_var_name),
                 const_cast<ModelInterface&>(*_model),
-                _ci_nt->getXLims()[0], _ci_nt->getYLims()[0],
+                _ci_nt->getXLims()[1], _ci_nt->getYLims()[1],
                 _ci_nt->getFrictionCoeff());
 
     return _opensot_nt;
