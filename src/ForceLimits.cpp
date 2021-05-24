@@ -148,7 +148,7 @@ ConstraintPtr OpenSotForceLimitsAdapter::constructConstraint()
     Eigen::Vector6d fmin, fmax;
     _ci_flim->getLimits(fmin, fmax);
 
-    _opensot_flim = boost::make_shared<FlimSoT>(
+    _opensot_flim = std::make_shared<FlimSoT>(
                 _ci_flim->getLinkName(),
                 fmin, fmax,
                 _vars.getVariable(_var_name));

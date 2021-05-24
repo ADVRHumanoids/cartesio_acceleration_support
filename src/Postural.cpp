@@ -21,7 +21,7 @@ TaskPtr OpenSotPosturalAdapter::constructTask()
     Eigen::VectorXd q;
     _model->getJointPosition(q);
 
-    _opensot_post = boost::make_shared<PosturalSoT>(const_cast<ModelInterface&>(*_model),
+    _opensot_post = std::make_shared<PosturalSoT>(const_cast<ModelInterface&>(*_model),
                                                     _vars.getVariable("qddot"),
                                                     _ci_post->getName()
                                                     );

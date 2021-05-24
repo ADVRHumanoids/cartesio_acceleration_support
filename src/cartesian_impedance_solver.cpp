@@ -20,7 +20,7 @@ CartesianImpedanceSolver::CartesianImpedanceSolver(ProblemDescription ik,
                 "supports interaction tasks", t->getName()));
         }
 
-        auto imp_sot =  boost::make_shared<ImpedanceOpenSot>(
+        auto imp_sot =  std::make_shared<ImpedanceOpenSot>(
             t->getName(),
             Eigen::VectorXd(),
             *_model,

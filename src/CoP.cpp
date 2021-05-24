@@ -70,7 +70,7 @@ OpenSotCoPAdapter::OpenSotCoPAdapter(ConstraintDescription::Ptr constr, Context:
 
 ConstraintPtr OpenSotCoPAdapter::constructConstraint()
 {
-    _opensot_cop = boost::make_shared<CoPSoT>(_ci_cop->getLinkName(),
+    _opensot_cop = std::make_shared<CoPSoT>(_ci_cop->getLinkName(),
                                             _vars.getVariable(_var_name),
                                             const_cast<ModelInterface&>(*_model),
                                             _ci_cop->getXLims(), _ci_cop->getYLims());

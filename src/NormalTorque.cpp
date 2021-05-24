@@ -84,7 +84,7 @@ OpenSotNormalTorqueAdapter::OpenSotNormalTorqueAdapter(ConstraintDescription::Pt
 
 ConstraintPtr OpenSotNormalTorqueAdapter::constructConstraint()
 {
-    _opensot_nt = boost::make_shared<NormalTorqueSoT>(
+    _opensot_nt = std::make_shared<NormalTorqueSoT>(
                 _ci_nt->getLinkName(),
                 _vars.getVariable(_var_name),
                 const_cast<ModelInterface&>(*_model),

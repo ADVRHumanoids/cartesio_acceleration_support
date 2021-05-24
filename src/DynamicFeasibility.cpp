@@ -70,7 +70,7 @@ TaskPtr OpenSotDynFeasAdapter::constructTask()
         qddot = _vars.getVariable("qddot");
     }
 
-    _opensot_dynfeas = boost::make_shared<DynamicFeasibilitySoT>("dynamic_feas",
+    _opensot_dynfeas = std::make_shared<DynamicFeasibilitySoT>("dynamic_feas",
                                                                  *_model,
                                                                  qddot,
                                                                  cl_vars,
