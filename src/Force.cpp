@@ -152,7 +152,7 @@ TaskPtr OpenSotForceAdapter::constructTask()
 {
     _var = _vars.getVariable(_var_name);
 
-    _opensot_wrench = std::make_shared<WrenchSoT>(_var_name + "_task",
+    _opensot_wrench = SotUtils::make_shared<WrenchSoT>(_var_name + "_task",
                                                     _ci_force->getLinkName(),
                                                     "arg_unused",
                                                     _var);

@@ -96,7 +96,7 @@ ConstraintPtr OpenSotFrictionConeAdapter::constructConstraint()
 {
     FcSoT::friction_cone fc(_ci_fc->getContactFrame(), _ci_fc->getFrictionCoeff());
 
-    _opensot_fc = std::make_shared<FcSoT>(_ci_fc->getLinkName(),
+    _opensot_fc = SotUtils::make_shared<FcSoT>(_ci_fc->getLinkName(),
                                             _vars.getVariable(_var_name),
                                             const_cast<ModelInterface&>(*_model),
                                             fc);

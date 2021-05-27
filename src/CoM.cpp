@@ -20,7 +20,7 @@ TaskPtr OpenSotComAdapter::constructTask()
     Eigen::VectorXd q;
     _model->getJointPosition(q);
 
-    _opensot_com = std::make_shared<ComSoT>(const_cast<ModelInterface&>(*_model),
+    _opensot_com = SotUtils::make_shared<ComSoT>(const_cast<ModelInterface&>(*_model),
                                               _vars.getVariable("qddot"));
 
 

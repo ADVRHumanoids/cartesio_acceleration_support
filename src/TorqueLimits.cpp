@@ -55,7 +55,7 @@ ConstraintPtr OpenSotTorqueLimitsAdapter::constructConstraint()
     qddot = _vars.getVariable("qddot");
 
 
-    _opensot_taulim = std::make_shared<TaulimSoT>(*_model,
+    _opensot_taulim = SotUtils::make_shared<TaulimSoT>(*_model,
                                                     qddot,
                                                     cl_vars,
                                                     _ci_taulim->getLinksInContact(),

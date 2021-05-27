@@ -1,5 +1,6 @@
 #include "cartesian_impedance_solver.h"
 #include <cartesian_interface/sdk/SolverPlugin.h>
+#include <cartesian_interface/sdk/opensot/OpenSotUtils.h>
 #include <fmt/format.h>
 
 using namespace XBot::Cartesian;
@@ -20,7 +21,7 @@ CartesianImpedanceSolver::CartesianImpedanceSolver(ProblemDescription ik,
                 "supports interaction tasks", t->getName()));
         }
 
-        auto imp_sot =  std::make_shared<ImpedanceOpenSot>(
+        auto imp_sot =  SotUtils::make_shared<ImpedanceOpenSot>(
             t->getName(),
             Eigen::VectorXd(),
             *_model,
