@@ -1,4 +1,4 @@
-#include "PosturalInteraction.h"
+#include "PosturalInteraction.hpp"
 
 using namespace XBot::Cartesian::acceleration;
 

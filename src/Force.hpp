@@ -1,37 +1,17 @@
-#ifndef FORCE_H
-#define FORCE_H
+#ifndef FORCE_HPP
+#define FORCE_HPP
 
-
-#include <cartesian_interface/sdk/opensot/OpenSotTask.h>
 #include <cartesian_interface/sdk/problem/Interaction.h>
 #include <cartesian_interface/sdk/ros/server_api/TaskRos.h>
 #include <cartesian_interface/sdk/ros/client_api/TaskRos.h>
 
 #include <OpenSoT/tasks/force/Force.h>
 
+#include <cartesio_acceleration_support/Force.h>
+
 using WrenchSoT = OpenSoT::tasks::force::Wrench;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
-
-class ForceTask : public virtual TaskDescription
-{
-
-public:
-
-    CARTESIO_DECLARE_SMART_PTR(ForceTask)
-
-    virtual const std::string& getLinkName() const = 0;
-
-    virtual const Eigen::Vector6d& getForceReference() const = 0;
-    virtual const Eigen::Vector6d& getForceValue() const = 0;
-    virtual Eigen::Affine3d getForceFrame() const = 0;
-
-    virtual void setForceReference(const Eigen::Vector6d& f) = 0;
-    virtual void setForceValue(const Eigen::Vector6d& f) = 0;
-    virtual void setForceFrame(const Eigen::Affine3d& T) = 0;
-
-};
-
 
 class ForceTaskImpl : public virtual ForceTask,
                       public TaskDescriptionImpl
@@ -145,4 +125,4 @@ private:
 };
 
 }}}
-#endif // FORCE_H
+#endif // FORCE_HPP

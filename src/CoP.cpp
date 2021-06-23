@@ -1,4 +1,4 @@
-#include "CoP.h"
+#include "CoP.hpp"
 
 using namespace XBot::Cartesian::acceleration;
 

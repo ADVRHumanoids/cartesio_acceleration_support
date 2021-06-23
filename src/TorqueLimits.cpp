@@ -1,4 +1,4 @@
-#include "TorqueLimits.h"
+#include "TorqueLimits.hpp"
 
 using namespace XBot::Cartesian::acceleration;
 

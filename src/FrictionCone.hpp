@@ -1,8 +1,7 @@
-#ifndef CARTESIO_FRICTIONCONE_H
-#define CARTESIO_FRICTIONCONE_H
+#ifndef CARTESIO_FRICTIONCONE_HPP
+#define CARTESIO_FRICTIONCONE_HPP
 
 
-#include <cartesian_interface/sdk/opensot/OpenSotTask.h>
 #include <cartesian_interface/sdk/problem/Interaction.h>
 #include <cartesian_interface/sdk/ros/server_api/TaskRos.h>
 #include <cartesian_interface/sdk/ros/client_api/TaskRos.h>
@@ -14,32 +13,11 @@
 #include <std_msgs/Float64.h>
 #include <std_srvs/SetBool.h>
 
+#include <cartesio_acceleration_support/FrictionCone.h>
+
 using FcSoT = OpenSoT::constraints::force::FrictionCone;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
-
-class FrictionCone : public virtual ConstraintDescription
-{
-
-public:
-
-    CARTESIO_DECLARE_SMART_PTR(FrictionCone)
-
-    virtual const std::string& getLinkName() const = 0;
-    virtual bool isLocal() const = 0;
-    virtual double getFrictionCoeff() const = 0;
-    virtual Eigen::Matrix3d getContactFrame() const = 0;
-    /**
-     * @brief setContactRotationMatrix
-     * @param R is the rotation expressed in world frame if isLocal() = false, otherwise is the
-     * local rotation applied to the rotation of the link_name expressed in world:
-     *      w_R_link * R
-     * NOTE: local = true is convenient for surface contacts
-     */
-    virtual void setContactRotationMatrix(const Eigen::Matrix3d& R) = 0;
-
-    virtual void setFrictionCoeff(const double mu) = 0;
-};
 
 class FrictionConeImpl : virtual public FrictionCone,
         public TaskDescriptionImpl
@@ -142,4 +120,4 @@ private:
 } } }
 
 
-#endif // FRICTIONCONE_H
+#endif // FRICTIONCONE_HPP

@@ -12,8 +12,11 @@ find_package(cartesian_interface REQUIRED)
 find_package(matlogger2 REQUIRED)
 
 
-include_directories(src/
-    ${catkin_INCLUDE_DIRS} ${cartesian_interface_INCLUDE_DIRS})
+include_directories(
+    src
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${cartesian_interface_INCLUDE_DIRS})
     
 add_message_files(
     FILES
@@ -24,9 +27,8 @@ generate_messages(
     geometry_msgs)
     
 catkin_package(
-    #INCLUDE_DIRS include
+    INCLUDE_DIRS include
     CATKIN_DEPENDS roscpp message_runtime geometry_msgs
-    DEPENDS
     )
 
 # cartesio_acceleration_support library
@@ -54,14 +56,10 @@ target_link_libraries(cartesio_acceleration_support
     matlogger2::matlogger2)
 
 install(TARGETS cartesio_acceleration_support
-        DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        )
+        DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
 
-FILE(GLOB installation_header "src/*.h")
-install(FILES ${installation_header}
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-    )
-
+install(DIRECTORY include/${PROJECT_NAME}/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 # force_optimization_node executable
 add_executable(force_optimization_node src/ForceOptimizationNode.cpp)

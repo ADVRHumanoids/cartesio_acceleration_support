@@ -1,29 +1,18 @@
-#ifndef CARTESIO_CENTEROFPRESSURE_H
-#define CARTESIO_CENTEROFPRESSURE_H
+#ifndef CARTESIO_CENTEROFPRESSURE_HPP
+#define CARTESIO_CENTEROFPRESSURE_HPP
 
 
-#include <cartesian_interface/sdk/opensot/OpenSotTask.h>
 #include <cartesian_interface/sdk/problem/Interaction.h>
 #include <cartesian_interface/sdk/ros/server_api/TaskRos.h>
 #include <cartesian_interface/sdk/ros/client_api/TaskRos.h>
 
 #include <OpenSoT/constraints/force/CoP.h>
 
+#include <cartesio_acceleration_support/CoP.h>
+
 using CoPSoT = OpenSoT::constraints::force::CoP;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
-
-class CoP : public virtual ConstraintDescription
-{
-public:
-
-    CARTESIO_DECLARE_SMART_PTR(CoP)
-
-    virtual const std::string& getLinkName() const = 0;
-    virtual const Eigen::Vector2d& getXLims() const = 0;
-    virtual const Eigen::Vector2d& getYLims() const = 0;
-
-};
 
 class CoPImpl : virtual public CoP,
         public TaskDescriptionImpl
@@ -71,4 +60,4 @@ private:
 }}}
 
 
-#endif
+#endif // CARTESIO_CENTEROFPRESSURE_HPP

@@ -1,38 +1,21 @@
-#ifndef FORCELIMITS_H
-#define FORCELIMITS_H
+#ifndef FORCELIMITS_HPP
+#define FORCELIMITS_HPP
 
-#include <cartesian_interface/sdk/opensot/OpenSotTask.h>
 #include <cartesian_interface/sdk/problem/Interaction.h>
 #include <cartesian_interface/sdk/ros/server_api/TaskRos.h>
 #include <cartesian_interface/sdk/ros/client_api/TaskRos.h>
 
-#include <geometry_msgs/WrenchStamped.h>
-#include <eigen_conversions/eigen_msg.h>
 #include <cartesio_acceleration_support/SetForceLimits.h>
+#include <cartesio_acceleration_support/ForceLimits.h>
 
+#include <geometry_msgs/WrenchStamped.h>
+
+#include <eigen_conversions/eigen_msg.h>
 #include <OpenSoT/constraints/force/WrenchLimits.h>
 
 using FlimSoT = OpenSoT::constraints::force::WrenchLimits;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
-
-class ForceLimits : public virtual ConstraintDescription
-{
-
-public:
-
-    CARTESIO_DECLARE_SMART_PTR(ForceLimits)
-
-    virtual const std::string& getLinkName() const = 0;
-    virtual bool isLocal() const = 0;
-    virtual void getLimits(Eigen::Vector6d& fmin,
-                           Eigen::Vector6d& fmax) const = 0;
-    virtual void setLimits(const Eigen::Vector6d& fmin,
-                           const Eigen::Vector6d& fmax) = 0;
-    virtual void setZero() = 0;
-    virtual void restore() = 0;
-
-};
 
 class ForceLimitsImpl : virtual public ForceLimits,
         public TaskDescriptionImpl
@@ -132,4 +115,4 @@ private:
 };
 
 } } }
-#endif // FORCELIMITS_H
+#endif // FORCELIMITS_HPP

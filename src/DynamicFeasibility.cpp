@@ -1,4 +1,4 @@
-#include "DynamicFeasibility.h"
+#include "DynamicFeasibility.hpp"
 #include <boost/make_shared.hpp>
 
 using namespace XBot::Cartesian::acceleration;

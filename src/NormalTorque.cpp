@@ -1,4 +1,4 @@
-#include "NormalTorque.h"
+#include "NormalTorque.hpp"
 
 using namespace XBot::Cartesian::acceleration;
 

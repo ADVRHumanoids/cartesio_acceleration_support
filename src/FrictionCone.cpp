@@ -1,4 +1,4 @@
-#include "FrictionCone.h"
+#include "FrictionCone.hpp"
 
 #include <fmt/format.h>
 
