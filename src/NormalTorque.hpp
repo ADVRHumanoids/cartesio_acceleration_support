@@ -1,30 +1,18 @@
-#ifndef CARTESIO_NORMALTORQUE_H
-#define CARTESIO_NORMALTORQUE_H
+#ifndef CARTESIO_NORMALTORQUE_HPP
+#define CARTESIO_NORMALTORQUE_HPP
 
-
-#include <cartesian_interface/sdk/opensot/OpenSotTask.h>
 #include <cartesian_interface/sdk/problem/Interaction.h>
 #include <cartesian_interface/sdk/ros/server_api/TaskRos.h>
 #include <cartesian_interface/sdk/ros/client_api/TaskRos.h>
 
 #include <OpenSoT/constraints/force/NormalTorque.h>
 
+#include <cartesio_acceleration_support/NormalTorque.h>
+
 using NormalTorqueSoT = OpenSoT::constraints::force::NormalTorque;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
 
-class NormalTorque : public virtual ConstraintDescription
-{
-public:
-
-    CARTESIO_DECLARE_SMART_PTR(NormalTorque)
-
-    virtual const std::string& getLinkName() const = 0;
-    virtual const Eigen::Vector2d& getXLims() const = 0;
-    virtual const Eigen::Vector2d& getYLims() const = 0;
-    virtual double getFrictionCoeff() = 0;
-
-};
 
 class NormalTorqueImpl : virtual public NormalTorque,
         public TaskDescriptionImpl
@@ -75,4 +63,4 @@ private:
 }}}
 
 
-#endif
+#endif // CARTESIO_NORMALTORQUE_HPP

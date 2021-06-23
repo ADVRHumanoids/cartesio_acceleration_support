@@ -1,29 +1,16 @@
-#ifndef TORQUELIMITS_H
-#define TORQUELIMITS_H
-
-#include <cartesian_interface/sdk/opensot/OpenSotTask.h>
+#ifndef TORQUELIMITS_HPP
+#define TORQUELIMITS_HPP
 
 #include <cartesian_interface/sdk/ros/server_api/TaskRos.h>
 #include <cartesian_interface/sdk/ros/client_api/TaskRos.h>
 
 #include <OpenSoT/constraints/acceleration/TorqueLimits.h>
 
+#include <cartesio_acceleration_support/TorqueLimits.h>
+
 using TaulimSoT = OpenSoT::constraints::acceleration::TorqueLimits;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
-
-class TorqueLimits : public virtual ConstraintDescription
-{
-
-public:
-
-    CARTESIO_DECLARE_SMART_PTR(TorqueLimits)
-
-    virtual const Eigen::VectorXd& getLimits() const = 0;
-    virtual void setLimits(Eigen::VectorXd& tau_lims) = 0;
-    virtual const std::vector<std::string>& getLinksInContact() const = 0;
-
-};
 
 class TorqueLimitsImpl : virtual public TorqueLimits,
         public TaskDescriptionImpl
@@ -70,8 +57,6 @@ private:
 
 };
 
-}
-}
-}
+}}}
 
-#endif
+#endif // TORQUELIMITS_HPP

@@ -1,27 +1,12 @@
-#ifndef POSTURAL_INTERACTION_H
-#define POSTURAL_INTERACTION_H
-
-
-
+#ifndef POSTURAL_INTERACTION_HPP
+#define POSTURAL_INTERACTION_HPP
 
 #include "Postural.h"
-#include <OpenSoT/tasks/acceleration/Postural.h>
+#include <cartesio_acceleration_support/PosturalInteraction.h>
 
 using PosturalSoT = OpenSoT::tasks::acceleration::Postural;
 
 namespace XBot { namespace Cartesian { namespace acceleration {
-
-class PosturalInteractionTask : public virtual PosturalTask
-{
-
-public:
-
-    CARTESIO_DECLARE_SMART_PTR(PosturalInteractionTask)
-
-    virtual void setImpedance(const Eigen::VectorXd& K, const Eigen::VectorXd& D) = 0;
-    virtual void getImpedance(Eigen::VectorXd& K, Eigen::VectorXd& D) const = 0;
-
-};
 
 class PosturalInteractionTaskImpl : public virtual PosturalInteractionTask,
                                     public PosturalTaskImpl
@@ -62,8 +47,6 @@ private:
 
 };
 
-}
-}
-}
+}}}
 
-#endif
+#endif // POSTURAL_INTERACTION_HPP
