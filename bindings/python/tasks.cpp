@@ -3,9 +3,9 @@
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
 
-#include "Force.h"
-#include "ForceLimits.h"
-#include "FrictionCone.h"
+#include "Force.hpp"
+#include "ForceLimits.hpp"
+#include "FrictionCone.hpp"
 
 namespace py = pybind11;
 
