@@ -74,6 +74,9 @@ ForceTaskRos::ForceTaskRos(TaskDescription::Ptr task,
     _f_fpub_visual = _ctx->nh().advertise<visualization_msgs::Marker>(task->getName() + "/force/value", 1);
     _f_tpub_visual = _ctx->nh().advertise<visualization_msgs::Marker>(task->getName() + "/torque/value", 1);
 
+    _f_fref_visual = _ctx->nh().advertise<visualization_msgs::Marker>(task->getName() + "/force/reference/value", 1);
+    _f_tref_visual = _ctx->nh().advertise<visualization_msgs::Marker>(task->getName() + "/torque/reference/value", 1);
+
     auto on_fref_recv = [this](geometry_msgs::WrenchStampedConstPtr msg)
     {
         Eigen::Vector6d fref;
@@ -93,6 +96,7 @@ void ForceTaskRos::run(ros::Time time)
 {
     TaskRos::run(time);
 
+    // PUBLISHING IN ROS COMPUTED WRENCHES
     geometry_msgs::WrenchStamped msg;
     auto f = _ci_force->getForceValue();
     f.head<3>() = _ci_force->getForceFrame().linear().transpose() * f.head<3>();
@@ -128,6 +132,36 @@ void ForceTaskRos::run(ros::Time time)
     msg_torque.color.r = 0;   msg_torque.color.b = 1;   msg_torque.color.g = 0;   msg_torque.color.a = 1;
     msg_torque.scale.x = 0.05;    msg_torque.scale.y = 0.075;    msg_torque.scale.z = 0.2;
     _f_tpub_visual.publish(msg_torque);
+
+    // PUBLISHING IN ROS REFERENCE WRENCHES
+    auto f_ref = _ci_force->getForceReference();
+    f_ref.head<3>() = _ci_force->getForceFrame().linear().transpose() * f_ref.head<3>();
+    f_ref.tail<3>() = _ci_force->getForceFrame().linear().transpose() * f_ref.tail<3>();
+
+    visualization_msgs::Marker msg_force_reference, msg_torque_reference;
+    f_ref *= 0.005;
+
+    msg_force_reference.header.stamp = time;
+    msg_force_reference.header.frame_id = _ctx->tf_prefix_slash() + _ci_force->getLinkName();
+    msg_force_reference.type = visualization_msgs::Marker::ARROW;
+    msg_force_reference.action = visualization_msgs::Marker::ADD;
+    msg_force_reference.points.resize(2);
+    msg_force_reference.points[0].x = 0;  msg_force_reference.points[0].y = 0;  msg_force_reference.points[0].z = 0;
+    msg_force_reference.points[1].x = f_ref(0);   msg_force_reference.points[1].y = f_ref(1);   msg_force_reference.points[1].z = f_ref(2);
+    msg_force_reference.color.r = 1;   msg_force_reference.color.b = 0;   msg_force_reference.color.g = 0;   msg_force_reference.color.a = 1;
+    msg_force_reference.scale.x = 0.05;    msg_force_reference.scale.y = 0.075;    msg_force_reference.scale.z = 0.2;
+    _f_fref_visual.publish(msg_force_reference);
+
+    msg_torque_reference.header.stamp = time;
+    msg_torque_reference.header.frame_id = _ctx->tf_prefix_slash() + _ci_force->getLinkName();
+    msg_torque_reference.type = visualization_msgs::Marker::ARROW;
+    msg_torque_reference.action = visualization_msgs::Marker::ADD;
+    msg_torque_reference.points.resize(2);
+    msg_torque_reference.points[0].x = 0;   msg_torque_reference.points[0].y = 0;   msg_torque_reference.points[0].z = 0;
+    msg_torque_reference.points[1].x = f_ref(3);   msg_torque_reference.points[1].y = f_ref(4);   msg_torque_reference.points[1].z = f_ref(5);
+    msg_torque_reference.color.r = 0;   msg_torque_reference.color.b = 1;   msg_torque_reference.color.g = 0;   msg_torque_reference.color.a = 1;
+    msg_torque_reference.scale.x = 0.05;    msg_torque_reference.scale.y = 0.075;    msg_torque_reference.scale.z = 0.2;
+    _f_tpub_visual.publish(msg_torque_reference);
 }
 
 
@@ -222,7 +256,7 @@ void ForceTaskRosClient::setForceReference(const Eigen::Vector6d& f)
 {
     geometry_msgs::WrenchStamped msg;
     tf::wrenchEigenToMsg(f, msg.wrench);
-    msg.header.frame_id = "ci/" + _link_name; // TBD dynamic tf prefix
+    msg.header.frame_id = "ci/world"; // TBD dynamic tf prefix
     msg.header.stamp = ros::Time::now();
 
     _fref_pub.publish(msg);
