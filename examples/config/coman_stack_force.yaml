@@ -1,10 +1,10 @@
 solver_options:
     regularization: 1e-3
     back_end: "qpoases"
-    variables: [force_l_sole, force_r_sole, force_l_hand]
-
+    
 stack:
     - ["l_sole", "r_sole"]
+    - ["l_hand"]
     - ["postural"]
     - ["LeftWrench", "RightWrench"]
 
@@ -69,25 +69,6 @@ LeftFlims:
     min: [-1000, -1000, -1000, -10, -10, 0]
     max: [1000, 1000, 1000, 10, 10, 0]
 
-LHandWrench:
-    lib_name: libcartesio_acceleration_support.so
-    type: "Force"
-    link: "l_wrist"
-    weight: [1, 1, 1, 1e3, 1e3, 1e3]
-
-LHandFc:
-    lib_name: libcartesio_acceleration_support.so
-    type: "FrictionCone"
-    link: "l_wrist"
-
-LHandFlims:
-    lib_name: libcartesio_acceleration_support.so
-    type: "ForceLimits"
-    link: "l_wrist"
-    min: [-1000, -1000, -1000, 0, 0, 0]
-    max: [1000, 1000, 1000, 0, 0, 0]
-
-
 UnderactuatedDyn:
     lib_name: libcartesio_acceleration_support.so
     type: "DynamicFeasibility"
@@ -105,6 +86,12 @@ r_sole:
     type: "Cartesian"
     lambda: 0.1
     distal_link: "r_sole"
+    
+l_hand:
+    lib_name: libcartesio_acceleration_support.so
+    type: "Cartesian"
+    lambda: 0.1
+    distal_link: "LSoftHand"
 
 postural:
     lib_name: libcartesio_acceleration_support.so

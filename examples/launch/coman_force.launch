@@ -7,7 +7,7 @@
 
     
     <arg name="prefix" default=""/>
-    <arg name="gui" default="false"/>
+    <arg name="gui" default="true"/>
     
     <param name="robot_description" 
         textfile="$(find cartesian_interface)/examples/urdf/coman.urdf"/>
@@ -26,21 +26,7 @@
             type="rviz"
             name="rviz"
             pkg="rviz"
-            args="-d $(find cartesian_interface)/examples/rviz/disp.rviz"/>
+            args="-d $(find cartesio_acceleration_support)/examples/rviz/coman_force.rviz"/>
             output="screen"/>
-
-
-
-    <!--node pkg="cartesio_acceleration_support"
-            type="force_optimization_node"
-            name="fopt_node" output="screen">
-
-            <param name="tf_prefix" value="ci"/>
-
-            <param name="problem_description"
-                   textfile="$(find cartesio_acceleration_support)/examples/config/coman_stack_force.yaml"/>
-
-            <remap from="force_opt/joint_states" to="/cartesian/solution"/>
-    </node-->
 
 </launch>
