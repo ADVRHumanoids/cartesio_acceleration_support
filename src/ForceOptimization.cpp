@@ -117,6 +117,21 @@ void ForceOptimizationClass::load_ci()
                                                pb,
                                                ctx);
 
+    for (auto task_name : _ci->getTaskList())
+    {
+        auto task = _ci->getTask(task_name);
+        if (std::dynamic_pointer_cast<XBot::Cartesian::acceleration::ForceTask>(task) != nullptr)
+            _task_names.push_back(task->getName().substr(6));
+    }
+
+    _pose_pubs.resize(_task_names.size());
+    for (int i = 0; i < _pose_pubs.size(); i++)
+    {
+        std::cout << _task_names[i] << std::endl;
+        _pose_pubs[i] = _nh.advertise<geometry_msgs::Pose>("pose/" + _task_names[i], 10, true);
+    }
+
+
     RosServerClass::Options opt;
     opt.tf_prefix = _tf_prefix;
     opt.publish_tf = false;
@@ -159,6 +174,22 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
     }
 
     _model->update();
+
+    // publish ee poses
+    Eigen::Affine3d T;
+    for (int i = 0; i < _task_names.size(); i++)
+    {
+        _model->getPose(_task_names[i], T);
+
+        geometry_msgs::Pose pose;
+
+        pose.position.x = T.translation()(0); pose.position.y = T.translation()(1); pose.position.z = T.translation()(2);
+
+        Eigen::Quaternion<double> quat(T.linear());
+        pose.orientation.x = quat.x(); pose.orientation.y = quat.y(); pose.orientation.z = quat.z(); pose.orientation.w = quat.w();
+
+        _pose_pubs[i].publish(pose);
+    }
     _rspub->publishTransforms(ros::Time::now(), "ci");
     _ci->reset(1./_rate);
 

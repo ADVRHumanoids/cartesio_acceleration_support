@@ -7,6 +7,8 @@
 #include <XBotInterface/RobotInterface.h>
 #include <cartesian_interface/utils/RobotStatePublisher.h>
 
+#include "Force.hpp"
+
 #include <cartesian_interface/CartesianInterfaceImpl.h>
 #include <cartesian_interface/ros/RosServerClass.h>
 #include <OpenSoT/tasks/Aggregated.h>
@@ -43,11 +45,13 @@ private:
     ros::Subscriber _js_sub;
     ros::Timer _timer;
     ros::ServiceServer _activation_srv;
+    std::vector<ros::Publisher> _pose_pubs;
 
     std::string _urdf, _srdf;
     std::string _fopt_pb_str;
     double _rate;
     std::string _tf_prefix, _tf_prefix_slash;
+    std::vector<std::string> _task_names;
 
     ImuSensor::ConstPtr _imu;
 
