@@ -53,8 +53,9 @@ bool CartesianImpedanceSolver::update(double time,
 
         static Eigen::MatrixXd kp(6, 6), kd(6, 6);
 
-        kp = imp_ci->getStiffness();
-        kd = imp_ci->getDamping();
+        Impedance _impedance = imp_ci->getImpedance();
+        kp = _impedance.stiffness;
+        kd = _impedance.damping;
         sot_ci->setStiffnessDamping(kp,
                                     kd);
 

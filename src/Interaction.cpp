@@ -62,8 +62,10 @@ void OpenSotInteractionAdapter::update(double time, double period)
 
     _opensot_cart->setReference(Tref, vref);
 
-    _opensot_cart->setKp(_ci_cart->getStiffness());
-    _opensot_cart->setKd(_ci_cart->getDamping());
+    Impedance _impedance= _ci_cart->getImpedance();
+    _opensot_cart->setKp(_impedance.stiffness);
+    _opensot_cart->setKd(_impedance.damping);
+
     _opensot_cart->setVirtualForce(_ci_cart->getForceReference());
 }
 
