@@ -78,8 +78,10 @@ void OpenSotCartesianAdapter::update(double time, double period)
     /* Update reference */
     Eigen::Affine3d Tref;
     Eigen::Vector6d vref;
-    _ci_cart->getPoseReference(Tref, &vref);
-    _opensot_cart->setReference(Tref, vref);
+    Eigen::Vector6d aref;
+
+    _ci_cart->getPoseReference(Tref, &vref, &aref);
+    _opensot_cart->setReference(Tref, vref, aref);
 }
 
 bool OpenSotCartesianAdapter::onBaseLinkChanged()
