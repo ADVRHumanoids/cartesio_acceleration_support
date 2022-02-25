@@ -53,6 +53,14 @@ void OpenSotPosturalAdapter::update(double time, double period)
     /* Update reference */
     _ci_post->getReferencePosture(_qref);
     _opensot_post->setReference(_qref);
+
+    if (_ci_post->useInertiaMatrixWeight())
+    {
+        _model->getInertiaMatrix(_B);
+        _W_base = _ci_post->getWeight();
+        _W_final = _W_base * _B;
+        _opensot_post->setWeight(_W_final);
+    }
 }
 
 const Eigen::MatrixXd& OpenSotPosturalAdapter::getOpenSotWeight() const

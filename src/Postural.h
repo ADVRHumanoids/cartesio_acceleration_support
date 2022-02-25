@@ -46,6 +46,10 @@ private:
     PosturalTask::Ptr _ci_post;
     mutable Eigen::MatrixXd _W;
 
+    Eigen::MatrixXd _B; // inertia matrix
+    Eigen::MatrixXd _W_base; // auxiliary matrix used to get the value of "weight" tag in the .yaml file
+    Eigen::MatrixXd _W_final; // final weight matrix (_W_base * _B)
+
 };
 
 } } }
