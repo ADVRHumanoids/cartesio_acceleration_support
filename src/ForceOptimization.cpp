@@ -4,7 +4,7 @@ ForceOptimizationClass::ForceOptimizationClass(std::string ns):
     _npr("~"),
     _nh(ns),
     _time(0.0),
-    _active(false)
+    _active(true)
 {
     load_params();
     load_model();
@@ -50,6 +50,8 @@ void ForceOptimizationClass::load_params()
     {
         _npr.getParam("problem_description", _fopt_pb_str);
     }
+
+    _active = _npr.param("start_active", true);
 
     _rate = _npr.param("rate", 100.0);
     _tf_prefix = _npr.param<std::string>("tf_prefix", "");
@@ -119,7 +121,7 @@ void ForceOptimizationClass::load_ci()
 
     RosServerClass::Options opt;
     opt.tf_prefix = _tf_prefix;
-    opt.publish_tf = false;
+    opt.publish_tf = _npr.param("publish_tf", false);
     opt.ros_namespace = _nh.getNamespace();
 
     _rosapi = std::make_shared<RosServerClass>(_ci, opt);
@@ -159,7 +161,6 @@ void ForceOptimizationClass::on_timer_cb(const ros::TimerEvent&)
     }
 
     _model->update();
-    _rspub->publishTransforms(ros::Time::now(), "ci");
     _ci->reset(1./_rate);
 
     if(!_ci->update(_time, 1./_rate))

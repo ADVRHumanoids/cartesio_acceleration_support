@@ -49,6 +49,8 @@ add_library(cartesio_acceleration_support SHARED
     src/ForceOptimization.cpp
     src/NormalTorque.cpp)
 
+add_dependencies(cartesio_acceleration_support ${PROJECT_NAME}_generate_messages)
+
 target_link_libraries(cartesio_acceleration_support
     PUBLIC
     ${catkin_LIBRARIES}
