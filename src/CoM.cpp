@@ -74,8 +74,9 @@ void OpenSotComAdapter::update(double time, double period)
     /* Update reference */
     Eigen::Affine3d Tref;
     Eigen::Vector6d vref;
-    _ci_com->getPoseReference(Tref, &vref);
-    _opensot_com->setReference(Tref.translation(), vref.segment(0,3));
+    Eigen::Vector6d aref;
+    _ci_com->getPoseReference(Tref, &vref, &aref);
+    _opensot_com->setReference(Tref.translation(), vref.segment(0,3), aref.segment(0,3));
 }
 
 bool OpenSotComAdapter::onBaseLinkChanged()
