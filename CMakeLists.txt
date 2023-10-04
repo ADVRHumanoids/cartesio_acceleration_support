@@ -76,14 +76,14 @@ add_subdirectory(bindings/python/)
 install(DIRECTORY examples/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/examples)
 
-# cartesian impedance solver
-add_library(CartesianInterfaceSolverImpedance SHARED
-    src/cartesian_impedance_solver.cpp)
+## cartesian impedance solver
+#add_library(CartesianInterfaceSolverImpedance SHARED
+#    src/cartesian_impedance_solver.cpp)
 
-target_link_libraries(CartesianInterfaceSolverImpedance
-    PRIVATE
-    matlogger2::matlogger2
-    ${cartesian_interface_LIBRARIES})
+#target_link_libraries(CartesianInterfaceSolverImpedance
+#    PRIVATE
+#    matlogger2::matlogger2
+#    ${cartesian_interface_LIBRARIES})
 
-install(TARGETS CartesianInterfaceSolverImpedance
-    DESTINATION lib)
+#install(TARGETS CartesianInterfaceSolverImpedance
+#    DESTINATION lib)
