@@ -56,7 +56,7 @@ void OpenSotPosturalAdapter::update(double time, double period)
 
     if (_ci_post->useInertiaMatrixWeight())
     {
-        _model->getInertiaMatrix(_B);
+        _model->computeInertiaMatrix(_B);
         _W_base = _ci_post->getWeight();
         _W_final = _W_base * _B;
         _opensot_post->setWeight(_W_final);
