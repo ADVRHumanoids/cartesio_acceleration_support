@@ -19,9 +19,6 @@ OpenSotVelocityLimitsAdapter::OpenSotVelocityLimitsAdapter(ConstraintDescription
 
 ConstraintPtr OpenSotVelocityLimitsAdapter::constructConstraint()
 {
-    Eigen::VectorXd q;
-    _model->getJointPosition(q);
-
     _opensot_vlim = SotUtils::make_shared<VelocityLimitsSoT>(const_cast<ModelInterface&>(*_model),
                                                           _vars.getVariable("qddot"),
                                                           _ci_vlim->getQdotMax(),
@@ -43,7 +40,7 @@ void OpenSotVelocityLimitsAdapter::update(double time, double period)
 
 OpenSoT::OptvarHelper::VariableVector OpenSotVelocityLimitsAdapter::getRequiredVariables() const
 {
-    return {{"qddot", _model->getJointNum()}};
+    return {{"qddot", _model->getNv()}};
 }
 
 CARTESIO_REGISTER_OPENSOT_CONSTR_PLUGIN(OpenSotVelocityLimitsAdapter, VelocityLimits)

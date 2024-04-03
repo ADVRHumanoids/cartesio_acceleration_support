@@ -46,7 +46,7 @@ OpenSoT::OptvarHelper::VariableVector OpenSotDynFeasAdapter::getRequiredVariable
 
     if(_ci_dynfeas->dynamicsEnabled())
     {
-        vars.emplace_back("qddot", _model->getJointNum());
+        vars.emplace_back("qddot", _model->getNv());
     }
 
     return vars;
@@ -63,7 +63,7 @@ TaskPtr OpenSotDynFeasAdapter::constructTask()
 
     OpenSoT::AffineHelper qddot;
     qddot.setZero(_vars.getAllVariables().front().getInputSize(),
-                  _model->getJointNum());
+                  _model->getNv());
 
     if(_ci_dynfeas->dynamicsEnabled())
     {

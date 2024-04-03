@@ -18,9 +18,6 @@ OpenSotCartesianAdapter::OpenSotCartesianAdapter(TaskDescription::Ptr task,
 
 TaskPtr OpenSotCartesianAdapter::constructTask()
 {
-    Eigen::VectorXd q;
-    _model->getJointPosition(q);
-
     _opensot_cart = SotUtils::make_shared<CartesianSoT>(_ci_cart->getName(),
                                                      const_cast<ModelInterface&>(*_model),
                                                      _ci_cart->getDistalLink(),
@@ -108,7 +105,7 @@ bool OpenSotCartesianAdapter::onControlModeChanged()
 
 OpenSoT::OptvarHelper::VariableVector OpenSotCartesianAdapter::getRequiredVariables() const
 {
-    return {{"qddot", _model->getJointNum()}};
+    return {{"qddot", _model->getNv()}};
 }
 
 CARTESIO_REGISTER_OPENSOT_TASK_PLUGIN(OpenSotCartesianAdapter, Cartesian)
