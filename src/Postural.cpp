@@ -18,9 +18,6 @@ OpenSotPosturalAdapter::OpenSotPosturalAdapter(TaskDescription::Ptr task,
 
 TaskPtr OpenSotPosturalAdapter::constructTask()
 {
-    Eigen::VectorXd q;
-    _model->getJointPosition(q);
-
     _opensot_post = SotUtils::make_shared<PosturalSoT>(const_cast<ModelInterface&>(*_model),
                                                     _vars.getVariable("qddot"),
                                                     _ci_post->getName()
@@ -72,7 +69,7 @@ const Eigen::MatrixXd& OpenSotPosturalAdapter::getOpenSotWeight() const
 
 OpenSoT::OptvarHelper::VariableVector OpenSotPosturalAdapter::getRequiredVariables() const
 {
-    return {{"qddot", _model->getJointNum()}};
+    return {{"qddot", _model->getNv()}};
 }
 
 CARTESIO_REGISTER_OPENSOT_TASK_PLUGIN(OpenSotPosturalAdapter, Postural)
