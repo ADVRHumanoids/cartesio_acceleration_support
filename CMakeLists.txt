@@ -40,6 +40,7 @@ add_library(cartesio_acceleration_support SHARED
     src/FrictionCone.cpp
     src/CoP.cpp
     src/CoM.cpp
+    src/MoM.cpp
     src/Interaction.cpp
     #src/PosturalInteraction.cpp
     src/Postural.cpp
@@ -55,6 +56,7 @@ target_link_libraries(cartesio_acceleration_support
     PUBLIC
     ${catkin_LIBRARIES}
     ${cartesian_interface_LIBRARIES}
+    "/home/enrico/catkin_ws/devel/lib/libCartesioAngularMomentumAddon.so"
     matlogger2::matlogger2)
 
 install(TARGETS cartesio_acceleration_support
