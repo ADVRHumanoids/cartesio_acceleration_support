@@ -17,9 +17,6 @@ OpenSotComAdapter::OpenSotComAdapter(TaskDescription::Ptr task,
 
 TaskPtr OpenSotComAdapter::constructTask()
 {
-    Eigen::VectorXd q;
-    _model->getJointPosition(q);
-
     _opensot_com = SotUtils::make_shared<ComSoT>(const_cast<ModelInterface&>(*_model),
                                               _vars.getVariable("qddot"));
 
@@ -102,7 +99,7 @@ bool OpenSotComAdapter::onControlModeChanged()
 
 OpenSoT::OptvarHelper::VariableVector OpenSotComAdapter::getRequiredVariables() const
 {
-    return {{"qddot", _model->getJointNum()}};
+    return {{"qddot", _model->getNv()}};
 }
 
 CARTESIO_REGISTER_OPENSOT_TASK_PLUGIN(OpenSotComAdapter, Com)
