@@ -50,7 +50,7 @@ ConstraintPtr OpenSotTorqueLimitsAdapter::constructConstraint()
 
     OpenSoT::AffineHelper qddot;
     qddot.setZero(_vars.getAllVariables().front().getInputSize(),
-                  _model->getJointNum());
+                  _model->getNv());
 
     qddot = _vars.getVariable("qddot");
 
@@ -73,7 +73,7 @@ OpenSoT::OptvarHelper::VariableVector OpenSotTorqueLimitsAdapter::getRequiredVar
         vars.emplace_back("force_" + cl, 6); ///TODO: Here we assume planar contacts!
     }
 
-    vars.emplace_back("qddot", _model->getJointNum());
+    vars.emplace_back("qddot", _model->getNv());
 
     return vars;
 }

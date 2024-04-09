@@ -9,7 +9,7 @@ JointLimitsAccImpl::JointLimitsAccImpl(YAML::Node yaml,
                                        Context::ConstPtr context):
     JointLimitsImpl(yaml, context)
 {
-    _qddot_max.setConstant(_model->getJointNum(), 1000.0);
+    _qddot_max.setConstant(_model->getNv(), 1000.0);
 
     if(yaml["limits_acc"] && yaml["limits_acc"].IsMap())
     {
@@ -39,7 +39,7 @@ JointLimitsAccImpl::JointLimitsAccImpl(YAML::Node yaml,
 
     if(yaml["limits_acc"] && yaml["limits_acc"].IsScalar())
     {
-        _qddot_max.setConstant(_model->getJointNum(), yaml["limits_acc"].as<double>());
+        _qddot_max.setConstant(_model->getNv(), yaml["limits_acc"].as<double>());
     }
 }
 
@@ -66,9 +66,6 @@ OpenSotJointLimitsAdapter::OpenSotJointLimitsAdapter(ConstraintDescription::Ptr 
 
 ConstraintPtr OpenSotJointLimitsAdapter::constructConstraint()
 {
-    Eigen::VectorXd q;
-    _model->getJointPosition(q);
-
     return SotUtils::make_shared<JointLimitsSoT>(const_cast<ModelInterface&>(*_model),
                                               _vars.getVariable("qddot"),
                                               _ci_jlim->getQmax(),
@@ -90,7 +87,7 @@ void OpenSotJointLimitsAdapter::update(double time, double period)
 
 OpenSoT::OptvarHelper::VariableVector OpenSotJointLimitsAdapter::getRequiredVariables() const
 {
-    return {{"qddot", _model->getJointNum()}};
+    return {{"qddot", _model->getNv()}};
 }
 
 CARTESIO_REGISTER_TASK_PLUGIN(JointLimitsAccImpl, JointLimits)
