@@ -81,4 +81,4 @@ OpenSoT::OptvarHelper::VariableVector OpenSotMomAdapter::getRequiredVariables() 
 }
 
 CARTESIO_REGISTER_OPENSOT_TASK_PLUGIN(OpenSotMomAdapter, AngularMomentum)
-
+CARTESIO_REGISTER_TASK_PLUGIN(XBot::Cartesian::AngularMomentumImpl, AngularMomentum)

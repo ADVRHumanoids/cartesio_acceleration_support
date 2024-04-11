@@ -32,7 +32,7 @@ catkin_package(
     )
 
 # cartesio_acceleration_support library
-add_library(cartesio_acceleration_support SHARED
+set(SOURCES
     src/Cartesian.cpp
     src/DynamicFeasibility.cpp
     src/Force.cpp
@@ -40,7 +40,7 @@ add_library(cartesio_acceleration_support SHARED
     src/FrictionCone.cpp
     src/CoP.cpp
     src/CoM.cpp
-    src/MoM.cpp
+
     src/Interaction.cpp
     #src/PosturalInteraction.cpp
     src/Postural.cpp
@@ -50,14 +50,30 @@ add_library(cartesio_acceleration_support SHARED
 #    src/ForceOptimization.cpp
     src/NormalTorque.cpp)
 
+if(TARGET cartesian_interface::CartesioAngularMomentumAddon)
+    set(SOURCES
+        ${SOURCES}
+        src/MoM.cpp
+    )
+endif()
+
+add_library(cartesio_acceleration_support SHARED
+    ${SOURCES}
+)
+
 add_dependencies(cartesio_acceleration_support ${PROJECT_NAME}_generate_messages)
 
 target_link_libraries(cartesio_acceleration_support
     PUBLIC
     ${catkin_LIBRARIES}
     ${cartesian_interface_LIBRARIES}
-    "/home/enrico/catkin_ws/devel/lib/libCartesioAngularMomentumAddon.so"
     matlogger2::matlogger2)
+
+if(TARGET cartesian_interface::CartesioAngularMomentumAddon)
+    target_link_libraries(cartesio_acceleration_support
+        PUBLIC
+        cartesian_interface::CartesioAngularMomentumAddon)
+endif()
 
 install(TARGETS cartesio_acceleration_support
         DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
