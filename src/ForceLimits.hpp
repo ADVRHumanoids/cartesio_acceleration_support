@@ -12,6 +12,7 @@
 
 #include <eigen_conversions/eigen_msg.h>
 #include <OpenSoT/constraints/force/WrenchLimits.h>
+#include <OpenSoT/utils/InverseDynamics.h>
 
 using FlimSoT = OpenSoT::constraints::force::WrenchLimits;
 
@@ -36,12 +37,15 @@ public:
     void setZero() override;
     void restore() override;
 
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL getContactModel();
+
 private:
 
     std::string _link;
     bool _local;
     Eigen::Vector6d _fmin, _fmax;
     bool _zeroed;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL _contact_model;
 
 };
 
@@ -63,7 +67,7 @@ public:
 
 private:
 
-    ForceLimits::Ptr _ci_flim;
+    ForceLimitsImpl::Ptr _ci_flim;
     FlimSoT::Ptr _opensot_flim;
     std::string _var_name;
 };

@@ -2,6 +2,7 @@
 #define DYNAMICFEASIBILITY_HPP
 
 #include <OpenSoT/tasks/acceleration/DynamicFeasibility.h>
+#include <OpenSoT/utils/InverseDynamics.h>
 #include <cartesian_interface/sdk/opensot/OpenSotTask.h>
 
 #include <cartesio_acceleration_support/DynamicFeasibility.h>
@@ -22,12 +23,13 @@ public:
 
     std::vector<std::string> getContactLinks() const override;
     bool dynamicsEnabled() const override;
-
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL getContactModel();
 
 private:
 
     bool _dynamics;
     std::vector<std::string> _contact_links;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL _contact_model;
 
 };
 

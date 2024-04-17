@@ -7,6 +7,7 @@
 #include <OpenSoT/constraints/acceleration/TorqueLimits.h>
 
 #include <cartesio_acceleration_support/TorqueLimits.h>
+#include <OpenSoT/utils/InverseDynamics.h>
 
 using TaulimSoT = OpenSoT::constraints::acceleration::TorqueLimits;
 
@@ -27,11 +28,13 @@ public:
     void setLimits(Eigen::VectorXd& tau_lims) override;
 
     const std::vector<std::string>& getLinksInContact() const override;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL getContactModel();
 
 private:
 
     Eigen::VectorXd _tau_lims;
     std::vector<std::string> _contact_links;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL _contact_model;
 };
 
 class OpenSotTorqueLimitsAdapter : public OpenSotConstraintAdapter
@@ -52,7 +55,7 @@ public:
 
 private:
 
-    TorqueLimits::Ptr _ci_taulim;
+    TorqueLimitsImpl::Ptr _ci_taulim;
     TaulimSoT::Ptr _opensot_taulim;
 
 };

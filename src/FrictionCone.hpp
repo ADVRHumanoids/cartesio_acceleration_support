@@ -14,6 +14,7 @@
 #include <std_srvs/SetBool.h>
 
 #include <cartesio_acceleration_support/FrictionCone.h>
+#include <OpenSoT/utils/InverseDynamics.h>
 
 using FcSoT = OpenSoT::constraints::force::FrictionCone;
 
@@ -36,6 +37,7 @@ public:
     Eigen::Matrix3d getContactFrame() const override;
     void setContactRotationMatrix(const Eigen::Matrix3d& R) override;
     void setFrictionCoeff(const double mu) override;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL getContactModel();
 
 private:
 
@@ -43,6 +45,7 @@ private:
     bool _local;
     double _mu;
     Eigen::Matrix3d _R;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL _contact_model;
 };
 
 class OpenSotFrictionConeAdapter : public OpenSotConstraintAdapter
@@ -63,7 +66,7 @@ public:
 
 private:
 
-    FrictionCone::Ptr _ci_fc;
+    FrictionConeImpl::Ptr _ci_fc;
     FcSoT::Ptr _opensot_fc;
     std::string _var_name;
     /**

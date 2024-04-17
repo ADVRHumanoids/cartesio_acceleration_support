@@ -14,6 +14,18 @@ DynamicFeasibilityImpl::DynamicFeasibilityImpl(YAML::Node task_node,
     {
         _dynamics = dyn.as<bool>();
     }
+
+    _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+    if(auto contact_model = task_node["contact_model"])
+    {
+        auto cm = contact_model.as<std::string>();
+        if(cm == "point")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::POINT_CONTACT;
+        else if(cm == "surface")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+        else
+            throw std::invalid_argument("supported contact models are ´point´ and ´surface´");
+    }
 }
 
 std::vector<std::string> DynamicFeasibilityImpl::getContactLinks() const
@@ -24,6 +36,11 @@ std::vector<std::string> DynamicFeasibilityImpl::getContactLinks() const
 bool DynamicFeasibilityImpl::dynamicsEnabled() const
 {
     return _dynamics;
+}
+
+OpenSoT::utils::InverseDynamics::CONTACT_MODEL DynamicFeasibilityImpl::getContactModel()
+{
+    return _contact_model;
 }
 
 OpenSotDynFeasAdapter::OpenSotDynFeasAdapter(TaskDescription::Ptr task,
@@ -41,7 +58,10 @@ OpenSoT::OptvarHelper::VariableVector OpenSotDynFeasAdapter::getRequiredVariable
 
     for(auto cl : _ci_dynfeas->getContactLinks())
     {
-        vars.emplace_back("force_" + cl, 6);
+        if(_ci_dynfeas->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+            vars.emplace_back("force_" + cl, 6);
+        else
+            vars.emplace_back("force_" + cl, 3);
     }
 
     if(_ci_dynfeas->dynamicsEnabled())

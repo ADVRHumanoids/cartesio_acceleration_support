@@ -10,6 +10,23 @@ TorqueLimitsImpl::TorqueLimitsImpl(YAML::Node node, Context::ConstPtr context):
     context->model()->getEffortLimits(_tau_lims);
     for(unsigned int i = 0; i < 6; ++i)
         _tau_lims[i] = 0.;
+
+    _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+    if(auto contact_model = node["contact_model"])
+    {
+        auto cm = contact_model.as<std::string>();
+        if(cm == "point")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::POINT_CONTACT;
+        else if(cm == "surface")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+        else
+            throw std::invalid_argument("supported contact models are ´point´ and ´surface´");
+    }
+}
+
+OpenSoT::utils::InverseDynamics::CONTACT_MODEL TorqueLimitsImpl::getContactModel()
+{
+    return _contact_model;
 }
 
 const Eigen::VectorXd& TorqueLimitsImpl::getLimits() const
@@ -31,7 +48,7 @@ OpenSotTorqueLimitsAdapter::OpenSotTorqueLimitsAdapter(ConstraintDescription::Pt
                                                        Context::ConstPtr context):
     OpenSotConstraintAdapter(constr, context)
 {
-    _ci_taulim = std::dynamic_pointer_cast<TorqueLimits>(constr);
+    _ci_taulim = std::dynamic_pointer_cast<TorqueLimitsImpl>(constr);
     if(!_ci_taulim) throw std::runtime_error("Provided constraint description "
                                             "does not have expected type 'TorqueLimits'");
 }
@@ -70,7 +87,10 @@ OpenSoT::OptvarHelper::VariableVector OpenSotTorqueLimitsAdapter::getRequiredVar
 
     for(auto cl : _ci_taulim->getLinksInContact())
     {
-        vars.emplace_back("force_" + cl, 6); ///TODO: Here we assume planar contacts!
+        if(_ci_taulim->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+            vars.emplace_back("force_" + cl, 6);
+        else
+            vars.emplace_back("force_" + cl, 3);
     }
 
     vars.emplace_back("qddot", _model->getNv());

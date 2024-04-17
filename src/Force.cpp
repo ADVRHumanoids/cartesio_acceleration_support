@@ -14,16 +14,49 @@ std::string get_name(YAML::Node node)
     return "force_" + link;
 }
 
+unsigned int get_task_size(YAML::Node node)
+{
+    if(auto contact_model = node["contact_model"])
+    {
+        auto cm = contact_model.as<std::string>();
+        if(cm == "point")
+            return 3;
+        else if(cm == "surface")
+            return 6;
+        else
+            throw std::invalid_argument("supported contact models are ´point´ and ´surface´");
+    }
+    else
+        return 6;
+}
+
 }
 
 ForceTaskImpl::ForceTaskImpl(YAML::Node node,
                              Context::ConstPtr context):
-    TaskDescriptionImpl (node, context, get_name(node), 6)
+    TaskDescriptionImpl (node, context, get_name(node), get_task_size(node))
 {
     _link = node["link"].as<std::string>();
     _fref.setZero();
     _fvalue = _fref;
     _T.setIdentity();
+
+    _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+    if(auto contact_model = node["contact_model"])
+    {
+        auto cm = contact_model.as<std::string>();
+        if(cm == "point")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::POINT_CONTACT;
+        else if(cm == "surface")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+        else
+            throw std::invalid_argument("supported contact models are ´point´ and ´surface´");
+    }
+}
+
+OpenSoT::utils::InverseDynamics::CONTACT_MODEL ForceTaskImpl::getContactModel()
+{
+    return _contact_model;
 }
 
 const std::string& ForceTaskImpl::getLinkName() const
@@ -65,7 +98,7 @@ ForceTaskRos::ForceTaskRos(TaskDescription::Ptr task,
                            RosContext::Ptr context):
     TaskRos(task, context)
 {
-    _ci_force = std::dynamic_pointer_cast<ForceTask>(task);
+    _ci_force = std::dynamic_pointer_cast<ForceTaskImpl>(task);
     if(!_ci_force) throw std::runtime_error("Provided task description "
                                             "does not have expected type 'ForceTask'");
 
@@ -81,6 +114,8 @@ ForceTaskRos::ForceTaskRos(TaskDescription::Ptr task,
     {
         Eigen::Vector6d fref;
         tf::wrenchMsgToEigen(msg->wrench, fref);
+
+
         _ci_force->setForceReference(fref);
     };
 
@@ -169,7 +204,7 @@ OpenSotForceAdapter::OpenSotForceAdapter(TaskDescription::Ptr ci_task,
                                          Context::ConstPtr context):
     OpenSotTaskAdapter(ci_task, context)
 {
-    _ci_force = std::dynamic_pointer_cast<ForceTask>(ci_task);
+    _ci_force = std::dynamic_pointer_cast<ForceTaskImpl>(ci_task);
     if(!_ci_force) throw std::runtime_error("Provided task description "
                                             "does not have expected type 'ForceTask'");
 
@@ -179,7 +214,10 @@ OpenSotForceAdapter::OpenSotForceAdapter(TaskDescription::Ptr ci_task,
 
 OpenSoT::OptvarHelper::VariableVector OpenSotForceAdapter::getRequiredVariables() const
 {
-    return {{_var_name, 6}};
+    if(_ci_force->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+        return {{_var_name, 6}};
+    else
+        return {{_var_name, 3}};
 }
 
 TaskPtr OpenSotForceAdapter::constructTask()
@@ -198,15 +236,46 @@ void OpenSotForceAdapter::update(double time, double period)
 {
     OpenSotTaskAdapter::update(time, period);
 
-    _opensot_wrench->setReference(_ci_force->getForceReference());
+    Eigen::Vector6d fref = _ci_force->getForceReference();
+
+    Eigen::VectorXd fref_;
+    if(_ci_force->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+    {
+        fref_ = fref;
+    }
+    else
+    {
+        fref_.setZero(3);
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            fref_[i] = fref[i];
+        }
+    }
+
+
+    _opensot_wrench->setReference(fref_);
 }
 
 void OpenSotForceAdapter::processSolution(const Eigen::VectorXd& solution)
 {
     OpenSotTaskAdapter::processSolution(solution);
 
-    Eigen::Vector6d f;
-    _var.getValue(solution, f);
+    Eigen::Vector6d f; f.setZero();
+    Eigen::VectorXd fval;
+    _var.getValue(solution, fval);
+
+    if(_ci_force->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+    {
+        f = fval;
+    }
+    else
+    {
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            f[i] = fval[i];
+        }
+    }
+
     _ci_force->setForceValue(f);
 
     Eigen::Affine3d T;

@@ -8,6 +8,7 @@
 #include <OpenSoT/tasks/force/Force.h>
 
 #include <cartesio_acceleration_support/Force.h>
+#include <OpenSoT/utils/InverseDynamics.h>
 
 using WrenchSoT = OpenSoT::tasks::force::Wrench;
 
@@ -30,6 +31,7 @@ public:
     const Eigen::Vector6d& getForceValue() const override;
     void setForceValue(const Eigen::Vector6d& f) override;
     void setForceFrame(const Eigen::Affine3d& T) override;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL getContactModel();
 
 private:
 
@@ -37,6 +39,7 @@ private:
     double _fref_timeout;
     Eigen::Vector6d _fref, _fvalue;
     Eigen::Affine3d _T;
+    OpenSoT::utils::InverseDynamics::CONTACT_MODEL _contact_model;
 
 };
 
@@ -56,7 +59,7 @@ public:
 
 private:
 
-    ForceTask::Ptr _ci_force;
+    ForceTaskImpl::Ptr _ci_force;
     ros::Publisher _f_pub, _f_fpub_visual, _f_tpub_visual, _f_fref_visual, _f_tref_visual;
     ros::Subscriber _fref_sub;
 };
@@ -119,7 +122,7 @@ private:
 
     OpenSoT::AffineHelper _var;
     std::string _var_name;
-    ForceTask::Ptr _ci_force;
+    ForceTaskImpl::Ptr _ci_force;
     Eigen::VectorXd _x;
 
 };

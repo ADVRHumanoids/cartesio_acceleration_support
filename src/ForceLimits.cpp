@@ -13,12 +13,28 @@ std::string get_name(YAML::Node node)
     return "force_lims_" + link;
 }
 
+unsigned int get_task_size(YAML::Node node)
+{
+    if(auto contact_model = node["contact_model"])
+    {
+        auto cm = contact_model.as<std::string>();
+        if(cm == "point")
+            return 3;
+        else if(cm == "surface")
+            return 6;
+        else
+            throw std::invalid_argument("supported contact models are ´point´ and ´surface´");
+    }
+    else
+        return 6;
+}
+
 }
 
 
 ForceLimitsImpl::ForceLimitsImpl(YAML::Node node,
                                  Context::ConstPtr context):
-    TaskDescriptionImpl (node, context, get_name(node), 6),
+    TaskDescriptionImpl (node, context, get_name(node), get_task_size(node)),
     _local(false),
     _zeroed(false)
 {
@@ -85,6 +101,23 @@ ForceLimitsImpl::ForceLimitsImpl(YAML::Node node,
         _local = n.as<bool>();
     }
 
+    _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+    if(auto contact_model = node["contact_model"])
+    {
+        auto cm = contact_model.as<std::string>();
+        if(cm == "point")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::POINT_CONTACT;
+        else if(cm == "surface")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+        else
+            throw std::invalid_argument("supported contact models are ´point´ and ´surface´");
+    }
+
+}
+
+OpenSoT::utils::InverseDynamics::CONTACT_MODEL ForceLimitsImpl::getContactModel()
+{
+    return _contact_model;
 }
 
 const std::string& ForceLimitsImpl::getLinkName() const
@@ -135,7 +168,7 @@ OpenSotForceLimitsAdapter::OpenSotForceLimitsAdapter(ConstraintDescription::Ptr 
                                                      Context::ConstPtr context):
     OpenSotConstraintAdapter(constr, context)
 {
-    _ci_flim = std::dynamic_pointer_cast<ForceLimits>(constr);
+    _ci_flim = std::dynamic_pointer_cast<ForceLimitsImpl>(constr);
     if(!_ci_flim) throw std::runtime_error("Provided task description "
                                             "does not have expected type 'ForceLimits'");
 
@@ -148,9 +181,27 @@ ConstraintPtr OpenSotForceLimitsAdapter::constructConstraint()
     Eigen::Vector6d fmin, fmax;
     _ci_flim->getLimits(fmin, fmax);
 
+    Eigen::VectorXd fmin_, fmax_;
+    if(_ci_flim->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+    {
+        fmin_ = fmin;
+        fmax_ = fmax;
+    }
+    else
+    {
+        fmin_.setZero(3);
+        fmax_.setZero(3);
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            fmin_[i] = fmin[i];
+            fmax_[i] = fmax[i];
+        }
+    }
+
+
     _opensot_flim = SotUtils::make_shared<FlimSoT>(
                 _ci_flim->getLinkName(),
-                fmin, fmax,
+                fmin_, fmax_,
                 _vars.getVariable(_var_name));
 
     return _opensot_flim;
@@ -158,7 +209,10 @@ ConstraintPtr OpenSotForceLimitsAdapter::constructConstraint()
 
 OpenSoT::OptvarHelper::VariableVector OpenSotForceLimitsAdapter::getRequiredVariables() const
 {
-    return {{_var_name, 6}};
+    if(_ci_flim->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+        return {{_var_name, 6}};
+    else
+        return {{_var_name, 3}};
 }
 
 void OpenSotForceLimitsAdapter::update(double time, double period)
@@ -168,7 +222,24 @@ void OpenSotForceLimitsAdapter::update(double time, double period)
     Eigen::Vector6d fmin, fmax;
     _ci_flim->getLimits(fmin, fmax);
 
-    _opensot_flim->setWrenchLimits(fmin, fmax);
+    Eigen::VectorXd fmin_, fmax_;
+    if(_ci_flim->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+    {
+        fmin_ = fmin;
+        fmax_ = fmax;
+    }
+    else
+    {
+        fmin_.setZero(3);
+        fmax_.setZero(3);
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            fmin_[i] = fmin[i];
+            fmax_[i] = fmax[i];
+        }
+    }
+
+    _opensot_flim->setWrenchLimits(fmin_, fmax_);
 }
 
 

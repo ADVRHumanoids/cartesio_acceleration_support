@@ -45,8 +45,25 @@ FrictionConeImpl::FrictionConeImpl(YAML::Node node,
         _R = Eigen::Quaterniond(Eigen::Vector4d::Map(quat.data())).toRotationMatrix();
     }
 
+    _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+
+    if(auto contact_model = node["contact_model"])
+    {
+        auto cm = contact_model.as<std::string>();
+        if(cm == "point")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::POINT_CONTACT;
+        else if(cm == "surface")
+            _contact_model = OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT;
+        else
+            throw std::invalid_argument("supported contact models are ´point´ and ´surface´");
+    }
+
 }
 
+OpenSoT::utils::InverseDynamics::CONTACT_MODEL FrictionConeImpl::getContactModel()
+{
+    return _contact_model;
+}
 
 const std::string& FrictionConeImpl::getLinkName() const
 {
@@ -84,7 +101,7 @@ OpenSotFrictionConeAdapter::OpenSotFrictionConeAdapter(ConstraintDescription::Pt
                                                        Context::ConstPtr context):
     OpenSotConstraintAdapter(constr, context)
 {
-    _ci_fc = std::dynamic_pointer_cast<FrictionCone>(constr);
+    _ci_fc = std::dynamic_pointer_cast<FrictionConeImpl>(constr);
     if(!constr) throw std::runtime_error("Provided task description "
                                          "does not have expected type 'FrictionCone'");
 
@@ -108,7 +125,10 @@ ConstraintPtr OpenSotFrictionConeAdapter::constructConstraint()
 
 OpenSoT::OptvarHelper::VariableVector OpenSotFrictionConeAdapter::getRequiredVariables() const
 {
-    return {{_var_name, 6}};
+    if(_ci_fc->getContactModel() == OpenSoT::utils::InverseDynamics::CONTACT_MODEL::SURFACE_CONTACT)
+        return {{_var_name, 6}};
+    else
+        return {{_var_name, 3}};
 }
 
 void OpenSotFrictionConeAdapter::update(double time, double period)
