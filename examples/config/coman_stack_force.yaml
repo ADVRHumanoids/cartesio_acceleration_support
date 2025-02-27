@@ -1,21 +1,20 @@
 solver_options:
-    regularization: 1e-3
+    regularization: 1e-2
     back_end: "qpoases"
     
 stack:
     - ["l_sole", "r_sole"]
-    - ["l_hand"]
-    - ["postural"]
-    - ["LeftWrench", "RightWrench"]
+    - ["l_hand", "com", torso]
+    - ["postural", "LeftWrench", "RightWrench"]
 
 constraints:
     - "UnderactuatedDyn"
     - "LeftFc"
     - "RightFc"
-    - "LeftFlims"
-    - "RightFlims"
     - "LeftCoP"
     - "RightCoP"
+    - "LeftFlims"
+    - "RightFlims"
 
 LeftCoP:
     lib_name: libcartesio_acceleration_support.so
@@ -35,13 +34,13 @@ RightWrench:
     lib_name: libcartesio_acceleration_support.so
     type: "Force"
     link: "r_sole"
-    weight: [1, 1, 1, 1e3, 1e3, 1e3]
+    weight: [1, 1, 1, 1, 1, 1]
 
 LeftWrench:
     lib_name: libcartesio_acceleration_support.so
     type: "Force"
     link: "l_sole"
-    weight: [1, 1, 1, 1e3, 1e3, 1e3]
+    weight: [1, 1, 1, 1, 1, 1]
 
 RightFc:
     lib_name: libcartesio_acceleration_support.so
@@ -59,21 +58,21 @@ RightFlims:
     lib_name: libcartesio_acceleration_support.so
     type: "ForceLimits"
     link: "r_sole"
-    min: [-1000, -1000, -1000, -10, -10, 0]
-    max: [1000, 1000, 1000,  10, 10, 0]
+    min: [-1000, -1000, -1000, -100, -100, -100]
+    max: [1000, 1000, 1000,  100, 100, 100]
 
 LeftFlims:
     lib_name: libcartesio_acceleration_support.so
     type: "ForceLimits"
     link: "l_sole"
-    min: [-1000, -1000, -1000, -10, -10, 0]
-    max: [1000, 1000, 1000, 10, 10, 0]
+    min: [-1000, -1000, -1000, -100, -100, -100]
+    max: [1000, 1000, 1000, 100, 100, 100]
 
 UnderactuatedDyn:
     lib_name: libcartesio_acceleration_support.so
     type: "DynamicFeasibility"
     contacts: ["l_sole", "r_sole"]
-    dynamics: false
+    dynamics: true
 
 l_sole:
     lib_name: libcartesio_acceleration_support.so
@@ -87,6 +86,13 @@ r_sole:
     lambda: 0.1
     distal_link: "r_sole"
     
+torso:
+    lib_name: libcartesio_acceleration_support.so
+    type: "Cartesian"
+    lambda: 0.1
+    distal_link: "torso"
+    indices: [3,4,5]
+    
 l_hand:
     lib_name: libcartesio_acceleration_support.so
     type: "Cartesian"
@@ -96,7 +102,12 @@ l_hand:
 postural:
     lib_name: libcartesio_acceleration_support.so
     type: "Postural"
-    lambda: 0.01
+    lambda: 0.1
+    
+com:
+    lib_name: libcartesio_acceleration_support.so
+    type: "Com"
+    lambda: 0.1
 
 
 
